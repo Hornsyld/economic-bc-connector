@@ -1,0 +1,7 @@
+.vscode/.alcache/
+.vscode/.altemplates/
+.vscode/rad.json
+.alpackages/
+*.app
+rad.json
+.debug/

@@ -1,0 +1,287 @@
+{
+    "collection": [
+        {
+            "accountNumber": 1000,
+            "accountType": "heading",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "RESULTATOPGØRELSE",
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1000/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1000"
+        },
+        {
+            "accountNumber": 1001,
+            "accountType": "heading",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Omsætning",
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1001/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1001"
+        },
+        {
+            "accountNumber": 1010,
+            "accountType": "profitAndLoss",
+            "balance": -6010.00,
+            "blockDirectEntries": false,
+            "debitCredit": "credit",
+            "name": "Salg af varer/ydelser m/moms",
+            "vatAccount": {
+                "vatCode": "U25",
+                "self": "https://restapi.e-conomic.com/vat-accounts/U25"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1010/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1010"
+        },
+        {
+            "accountNumber": 1020,
+            "accountType": "profitAndLoss",
+            "balance": -1000.00,
+            "blockDirectEntries": false,
+            "debitCredit": "credit",
+            "department": {
+                "departmentNumber": 1,
+                "name": "Department 1",
+                "self": "https://restapi.e-conomic.com/departments/1"
+            },
+            "departmentalDistribution": {
+                "departmentalDistributionNumber": 1,
+                "distributionType": "department",
+                "self": "https://restapi.e-conomic.com/departmental-distributions/departments/1"
+            },
+            "name": "Salg af varer til udland",
+            "vatAccount": {
+                "vatCode": "Abr",
+                "self": "https://restapi.e-conomic.com/vat-accounts/Abr"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1020/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1020"
+        },
+        {
+            "accountNumber": 1021,
+            "accountType": "profitAndLoss",
+            "balance": 5520.00,
+            "blockDirectEntries": false,
+            "debitCredit": "credit",
+            "name": "Salg af ydelser til udland",
+            "vatAccount": {
+                "vatCode": "Abr",
+                "self": "https://restapi.e-conomic.com/vat-accounts/Abr"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1021/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1021"
+        },
+        {
+            "accountNumber": 1025,
+            "accountType": "profitAndLoss",
+            "balance": 5950.00,
+            "blockDirectEntries": false,
+            "debitCredit": "credit",
+            "name": "Salg af varer til EU",
+            "vatAccount": {
+                "vatCode": "UEUV",
+                "self": "https://restapi.e-conomic.com/vat-accounts/UEUV"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1025/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1025"
+        },
+        {
+            "accountNumber": 1026,
+            "accountType": "profitAndLoss",
+            "balance": -80596.42,
+            "blockDirectEntries": false,
+            "debitCredit": "credit",
+            "department": {
+                "departmentNumber": 2,
+                "name": "Department 2",
+                "self": "https://restapi.e-conomic.com/departments/2"
+            },
+            "departmentalDistribution": {
+                "departmentalDistributionNumber": 2,
+                "distributionType": "department",
+                "self": "https://restapi.e-conomic.com/departmental-distributions/departments/2"
+            },
+            "name": "Salg af ydelser til EU",
+            "vatAccount": {
+                "vatCode": "UY0",
+                "self": "https://restapi.e-conomic.com/vat-accounts/UY0"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1026/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1026"
+        },
+        {
+            "accountNumber": 1030,
+            "accountType": "profitAndLoss",
+            "balance": -2000.00,
+            "blockDirectEntries": false,
+            "debitCredit": "credit",
+            "name": "Salg til kunder u/moms",
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1030/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1030"
+        },
+        {
+            "accountNumber": 1099,
+            "accountType": "totalFrom",
+            "balance": -78136.42,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Omsætning i alt",
+            "totalFromAccount": {
+                "accountNumber": 1001,
+                "self": "https://restapi.e-conomic.com/accounts/1001"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1099/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1099"
+        },
+        {
+            "accountNumber": 1300,
+            "accountType": "heading",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Direkte omkostninger",
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1300/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1300"
+        },
+        {
+            "accountNumber": 1310,
+            "accountType": "profitAndLoss",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Direkte omkostninger m/moms",
+            "vatAccount": {
+                "vatCode": "I25",
+                "self": "https://restapi.e-conomic.com/vat-accounts/I25"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1310/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1310"
+        },
+        {
+            "accountNumber": 1320,
+            "accountType": "profitAndLoss",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Direkte omkostninger varer u/moms indenfor EU",
+            "vatAccount": {
+                "vatCode": "IV25",
+                "self": "https://restapi.e-conomic.com/vat-accounts/IV25"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1320/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1320"
+        },
+        {
+            "accountNumber": 1321,
+            "accountType": "profitAndLoss",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Direkte omkostninger ydelser u/moms indenfor EU",
+            "vatAccount": {
+                "vatCode": "IY25",
+                "self": "https://restapi.e-conomic.com/vat-accounts/IY25"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1321/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1321"
+        },
+        {
+            "accountNumber": 1324,
+            "accountType": "profitAndLoss",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Direkte omkostninger varer u/moms 3. lande",
+            "vatAccount": {
+                "vatCode": "IV25",
+                "self": "https://restapi.e-conomic.com/vat-accounts/IV25"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1324/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1324"
+        },
+        {
+            "accountNumber": 1325,
+            "accountType": "profitAndLoss",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Direkte omkostninger ydelser u/moms 3. lande",
+            "vatAccount": {
+                "vatCode": "IY25",
+                "self": "https://restapi.e-conomic.com/vat-accounts/IY25"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1325/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1325"
+        },
+        {
+            "accountNumber": 1326,
+            "accountType": "profitAndLoss",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Lønninger, afsluttede projekter (projekt)",
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1326/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1326"
+        },
+        {
+            "accountNumber": 1327,
+            "accountType": "profitAndLoss",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Omkostninger, afsluttede projekter (projekt)",
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1327/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1327"
+        },
+        {
+            "accountNumber": 1330,
+            "accountType": "profitAndLoss",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Vareforbrug (lagermodul)",
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1330/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1330"
+        },
+        {
+            "accountNumber": 1399,
+            "accountType": "totalFrom",
+            "balance": 0.00,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Direkte omkostninger i alt",
+            "totalFromAccount": {
+                "accountNumber": 1300,
+                "self": "https://restapi.e-conomic.com/accounts/1300"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/1399/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/1399"
+        },
+        {
+            "accountNumber": 2000,
+            "accountType": "totalFrom",
+            "balance": -78136.42,
+            "blockDirectEntries": false,
+            "debitCredit": "debit",
+            "name": "Dækningsbidrag",
+            "totalFromAccount": {
+                "accountNumber": 1000,
+                "self": "https://restapi.e-conomic.com/accounts/1000"
+            },
+            "accountingYears": "https://restapi.e-conomic.com/accounts/2000/accounting-years",
+            "self": "https://restapi.e-conomic.com/accounts/2000"
+        }
+    ],
+    "pagination": {
+        "skipPages": 0,
+        "pageSize": 20,
+        "maxPageSizeAllowed": 1000,
+        "results": 200,
+        "resultsWithoutFilter": 200,
+        "firstPage": "https://restapi.e-conomic.com/accounts?skippages=0pagesize=20",
+        "nextPage": "https://restapi.e-conomic.com/accounts?skippages=1pagesize=20",
+        "lastPage": "https://restapi.e-conomic.com/accounts?skippages=9pagesize=20"
+    },
+    "self": "https://restapi.e-conomic.com/accounts"
+}
