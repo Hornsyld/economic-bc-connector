@@ -322,7 +322,7 @@ codeunit 51003 "Economic Data Processor"
     begin
         // Map the customer number from e-conomic
         CustomerMapping."Economic Customer Number" := CopyStr(GetJsonValueAsText(CustomerObject, 'customerNumber'), 1, MaxStrLen(CustomerMapping."Economic Customer Number"));
-        
+
         // Basic information using correct field names
         CustomerMapping."Economic Customer Name" := CopyStr(GetJsonValueAsText(CustomerObject, 'name'), 1, MaxStrLen(CustomerMapping."Economic Customer Name"));
         CustomerMapping."Economic Corporate ID" := CopyStr(GetJsonValueAsText(CustomerObject, 'corporateIdentificationNumber'), 1, MaxStrLen(CustomerMapping."Economic Corporate ID"));
@@ -359,59 +359,59 @@ codeunit 51003 "Economic Data Processor"
     begin
         // Map the vendor name from e-conomic
         VendorMapping."Vendor Name" := CopyStr(GetJsonValueAsText(VendorObject, 'name'), 1, MaxStrLen(VendorMapping."Vendor Name"));
-        
+
         // Core Information
         VendorMapping."Email" := CopyStr(GetJsonValueAsText(VendorObject, 'email'), 1, MaxStrLen(VendorMapping."Email"));
         VendorMapping."Phone" := CopyStr(GetJsonValueAsText(VendorObject, 'phone'), 1, MaxStrLen(VendorMapping."Phone"));
-        
+
         // Address Information
         VendorMapping."Address" := CopyStr(GetJsonValueAsText(VendorObject, 'address'), 1, MaxStrLen(VendorMapping."Address"));
         VendorMapping."City" := CopyStr(GetJsonValueAsText(VendorObject, 'city'), 1, MaxStrLen(VendorMapping."City"));
         VendorMapping."Post Code" := CopyStr(GetJsonValueAsText(VendorObject, 'zip'), 1, MaxStrLen(VendorMapping."Post Code"));
         VendorMapping."Country" := CopyStr(GetJsonValueAsText(VendorObject, 'country'), 1, MaxStrLen(VendorMapping."Country"));
-        
+
         // Financial Information
         VendorMapping."Currency Code" := CopyStr(GetJsonValueAsText(VendorObject, 'currency'), 1, MaxStrLen(VendorMapping."Currency Code"));
         VendorMapping."Bank Account" := CopyStr(GetJsonValueAsText(VendorObject, 'bankAccount'), 1, MaxStrLen(VendorMapping."Bank Account"));
         VendorMapping."Corporate ID Number" := CopyStr(GetJsonValueAsText(VendorObject, 'corporateIdentificationNumber'), 1, MaxStrLen(VendorMapping."Corporate ID Number"));
-        
+
         // Business Information
         VendorMapping."Default Invoice Text" := CopyStr(GetJsonValueAsText(VendorObject, 'defaultInvoiceText'), 1, MaxStrLen(VendorMapping."Default Invoice Text"));
         VendorMapping."Barred" := GetJsonValueAsBoolean(VendorObject, 'barred');
-        
+
         // Extract numbers from nested objects
         if GetJsonObjectValue(VendorObject, 'paymentTerms', PaymentTermsObject) then
             VendorMapping."Payment Terms Number" := GetJsonValueAsInteger(PaymentTermsObject, 'paymentTermsNumber');
-            
+
         if GetJsonObjectValue(VendorObject, 'vatZone', VatZoneObject) then
             VendorMapping."VAT Zone Number" := GetJsonValueAsInteger(VatZoneObject, 'vatZoneNumber');
-            
+
         if GetJsonObjectValue(VendorObject, 'supplierGroup', SupplierGroupObject) then
             VendorMapping."Supplier Group Number" := GetJsonValueAsInteger(SupplierGroupObject, 'supplierGroupNumber');
-            
+
         if GetJsonObjectValue(VendorObject, 'layout', LayoutObject) then
             VendorMapping."Layout Number" := GetJsonValueAsInteger(LayoutObject, 'layoutNumber');
-            
+
         if GetJsonObjectValue(VendorObject, 'costAccount', CostAccountObject) then
             VendorMapping."Cost Account Number" := GetJsonValueAsInteger(CostAccountObject, 'accountNumber');
-        
+
         // Contact References
         if GetJsonObjectValue(VendorObject, 'attention', AttentionObject) then
             VendorMapping."Attention Contact Number" := GetJsonValueAsInteger(AttentionObject, 'number');
-            
+
         if GetJsonObjectValue(VendorObject, 'supplierContact', SupplierContactObject) then
             VendorMapping."Supplier Contact Number" := GetJsonValueAsInteger(SupplierContactObject, 'number');
-            
+
         if GetJsonObjectValue(VendorObject, 'salesPerson', SalesPersonObject) then
             VendorMapping."Sales Person Employee Number" := GetJsonValueAsInteger(SalesPersonObject, 'employeeNumber');
-        
+
         // Payment Information
         if GetJsonObjectValue(VendorObject, 'remittanceAdvice', RemittanceAdviceObject) then begin
             VendorMapping."Creditor ID" := CopyStr(GetJsonValueAsText(RemittanceAdviceObject, 'creditorId'), 1, MaxStrLen(VendorMapping."Creditor ID"));
             if GetJsonObjectValue(RemittanceAdviceObject, 'paymentType', PaymentTypeObject) then
                 VendorMapping."Payment Type Number" := GetJsonValueAsInteger(PaymentTypeObject, 'paymentTypeNumber');
         end;
-        
+
         // Log successful mapping
         Logger.LogSuccess('MapVendorFields', 'Vendor field mapping completed');
     end;
