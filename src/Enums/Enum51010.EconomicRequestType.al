@@ -39,4 +39,8 @@ enum 51010 "Economic Request Type"
     {
         Caption = 'Journal';
     }
+    value(9; Entry)
+    {
+        Caption = 'Entry';
+    }
 }

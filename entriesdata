@@ -1,0 +1,488 @@
+https://restapi.e-conomic.com/accounting-years/2022/entries?demo=true
+
+
+{
+  "collection": [
+    {
+      "account": {
+        "accountNumber": 1021,
+        "self": "https://restapi.e-conomic.com/accounts/1021?demo=true"
+      },
+      "amount": 350,
+      "amountInBaseCurrency": 350,
+      "currency": "DKK",
+      "date": "2022-05-30",
+      "project": {
+        "projectNumber": 7,
+        "self": "https://restapi.e-conomic.com/projects/7?demo=true"
+      },
+      "entryNumber": 1,
+      "text": "Time entry, Martin Crane – 30.5.2022",
+      "entryType": "systemEntry",
+      "voucherNumber": 600000,
+      "self": "https://restapi.e-conomic.com/entries/1?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 3130,
+        "self": "https://restapi.e-conomic.com/accounts/3130?demo=true"
+      },
+      "amount": -350,
+      "amountInBaseCurrency": -350,
+      "currency": "DKK",
+      "date": "2022-05-30",
+      "project": {
+        "projectNumber": 7,
+        "self": "https://restapi.e-conomic.com/projects/7?demo=true"
+      },
+      "entryNumber": 2,
+      "text": "Time entry, Martin Crane – 30.5.2022",
+      "entryType": "systemEntry",
+      "voucherNumber": 600000,
+      "self": "https://restapi.e-conomic.com/entries/2?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 1021,
+        "self": "https://restapi.e-conomic.com/accounts/1021?demo=true"
+      },
+      "amount": 250,
+      "amountInBaseCurrency": 250,
+      "currency": "DKK",
+      "date": "2022-05-09",
+      "project": {
+        "projectNumber": 1,
+        "self": "https://restapi.e-conomic.com/projects/1?demo=true"
+      },
+      "entryNumber": 3,
+      "text": "Time entry, Martin Crane – 9.5.2022",
+      "entryType": "systemEntry",
+      "voucherNumber": 600001,
+      "self": "https://restapi.e-conomic.com/entries/3?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 3130,
+        "self": "https://restapi.e-conomic.com/accounts/3130?demo=true"
+      },
+      "amount": -250,
+      "amountInBaseCurrency": -250,
+      "currency": "DKK",
+      "date": "2022-05-09",
+      "project": {
+        "projectNumber": 1,
+        "self": "https://restapi.e-conomic.com/projects/1?demo=true"
+      },
+      "entryNumber": 4,
+      "text": "Time entry, Martin Crane – 9.5.2022",
+      "entryType": "systemEntry",
+      "voucherNumber": 600001,
+      "self": "https://restapi.e-conomic.com/entries/4?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 1025,
+        "self": "https://restapi.e-conomic.com/accounts/1025?demo=true"
+      },
+      "amount": 120,
+      "amountInBaseCurrency": 120,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "project": {
+        "projectNumber": 7,
+        "self": "https://restapi.e-conomic.com/projects/7?demo=true"
+      },
+      "entryNumber": 5,
+      "text": "Expense – employee 4 - Donny Bosco",
+      "entryType": "systemEntry",
+      "vatAccount": {
+        "vatCode": "I25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/I25?demo=true"
+      },
+      "voucherNumber": 4000000,
+      "self": "https://restapi.e-conomic.com/entries/5?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 6903,
+        "self": "https://restapi.e-conomic.com/accounts/6903?demo=true"
+      },
+      "amount": 30,
+      "amountInBaseCurrency": 30,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "project": {
+        "projectNumber": 7,
+        "self": "https://restapi.e-conomic.com/projects/7?demo=true"
+      },
+      "entryNumber": 6,
+      "text": "Expense – employee 4 - Donny Bosco",
+      "entryType": "systemEntry",
+      "vatAccount": {
+        "vatCode": "I25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/I25?demo=true"
+      },
+      "voucherNumber": 4000000,
+      "self": "https://restapi.e-conomic.com/entries/6?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 1025,
+        "self": "https://restapi.e-conomic.com/accounts/1025?demo=true"
+      },
+      "amount": -150,
+      "amountInBaseCurrency": -150,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "project": {
+        "projectNumber": 7,
+        "self": "https://restapi.e-conomic.com/projects/7?demo=true"
+      },
+      "entryNumber": 7,
+      "text": "Expense – employee 4 - Donny Bosco",
+      "entryType": "systemEntry",
+      "voucherNumber": 4000000,
+      "self": "https://restapi.e-conomic.com/entries/7?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 1025,
+        "self": "https://restapi.e-conomic.com/accounts/1025?demo=true"
+      },
+      "amount": 800,
+      "amountInBaseCurrency": 800,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "project": {
+        "projectNumber": 7,
+        "self": "https://restapi.e-conomic.com/projects/7?demo=true"
+      },
+      "entryNumber": 8,
+      "text": "Expense – employee 4 - Donny Bosco",
+      "entryType": "systemEntry",
+      "vatAccount": {
+        "vatCode": "I25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/I25?demo=true"
+      },
+      "voucherNumber": 4000001,
+      "self": "https://restapi.e-conomic.com/entries/8?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 6903,
+        "self": "https://restapi.e-conomic.com/accounts/6903?demo=true"
+      },
+      "amount": 200,
+      "amountInBaseCurrency": 200,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "project": {
+        "projectNumber": 7,
+        "self": "https://restapi.e-conomic.com/projects/7?demo=true"
+      },
+      "entryNumber": 9,
+      "text": "Expense – employee 4 - Donny Bosco",
+      "entryType": "systemEntry",
+      "vatAccount": {
+        "vatCode": "I25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/I25?demo=true"
+      },
+      "voucherNumber": 4000001,
+      "self": "https://restapi.e-conomic.com/entries/9?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 1020,
+        "self": "https://restapi.e-conomic.com/accounts/1020?demo=true"
+      },
+      "amount": -1000,
+      "amountInBaseCurrency": -1000,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "project": {
+        "projectNumber": 7,
+        "self": "https://restapi.e-conomic.com/projects/7?demo=true"
+      },
+      "entryNumber": 10,
+      "text": "Expense – employee 4 - Donny Bosco",
+      "entryType": "systemEntry",
+      "voucherNumber": 4000001,
+      "self": "https://restapi.e-conomic.com/entries/10?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 1010,
+        "self": "https://restapi.e-conomic.com/accounts/1010?demo=true"
+      },
+      "amount": -70,
+      "amountInBaseCurrency": -70,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "dueDate": "2022-06-10",
+      "entryNumber": 11,
+      "text": "Invoice",
+      "entryType": "customerInvoice",
+      "vatAccount": {
+        "vatCode": "U25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/U25?demo=true"
+      },
+      "voucherNumber": 1,
+      "quantity1": -1,
+      "quantity2": 0,
+      "bookedInvoice": {
+        "bookedInvoiceNumber": 1,
+        "self": "https://restapi.e-conomic.com/invoices/booked/1?demo=true"
+      },
+      "invoiceNumber": 1,
+      "self": "https://restapi.e-conomic.com/entries/11?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 6902,
+        "self": "https://restapi.e-conomic.com/accounts/6902?demo=true"
+      },
+      "amount": -17.5,
+      "amountInBaseCurrency": -17.5,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "dueDate": "2022-06-10",
+      "entryNumber": 12,
+      "text": "Invoice",
+      "entryType": "customerInvoice",
+      "vatAccount": {
+        "vatCode": "U25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/U25?demo=true"
+      },
+      "voucherNumber": 1,
+      "bookedInvoice": {
+        "bookedInvoiceNumber": 1,
+        "self": "https://restapi.e-conomic.com/invoices/booked/1?demo=true"
+      },
+      "invoiceNumber": 1,
+      "self": "https://restapi.e-conomic.com/entries/12?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 5600,
+        "self": "https://restapi.e-conomic.com/accounts/5600?demo=true"
+      },
+      "amount": 87.5,
+      "amountInBaseCurrency": 87.5,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "dueDate": "2022-06-10",
+      "entryNumber": 13,
+      "text": "Invoice",
+      "entryType": "customerInvoice",
+      "voucherNumber": 1,
+      "customer": {
+        "customerNumber": 1,
+        "self": "https://restapi.e-conomic.com/customers/1?demo=true"
+      },
+      "bookedInvoice": {
+        "bookedInvoiceNumber": 1,
+        "self": "https://restapi.e-conomic.com/invoices/booked/1?demo=true"
+      },
+      "invoiceNumber": 1,
+      "remainder": 0,
+      "remainderInBaseCurrency": 0,
+      "self": "https://restapi.e-conomic.com/entries/13?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 1010,
+        "self": "https://restapi.e-conomic.com/accounts/1010?demo=true"
+      },
+      "amount": -950,
+      "amountInBaseCurrency": -950,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "dueDate": "2022-06-10",
+      "project": {
+        "projectNumber": 1,
+        "self": "https://restapi.e-conomic.com/projects/1?demo=true"
+      },
+      "entryNumber": 14,
+      "text": "Customer 4",
+      "entryType": "customerInvoice",
+      "vatAccount": {
+        "vatCode": "U25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/U25?demo=true"
+      },
+      "voucherNumber": 2,
+      "quantity1": -11,
+      "quantity2": 0,
+      "bookedInvoice": {
+        "bookedInvoiceNumber": 2,
+        "self": "https://restapi.e-conomic.com/invoices/booked/2?demo=true"
+      },
+      "invoiceNumber": 2,
+      "self": "https://restapi.e-conomic.com/entries/14?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 6902,
+        "self": "https://restapi.e-conomic.com/accounts/6902?demo=true"
+      },
+      "amount": -237.5,
+      "amountInBaseCurrency": -237.5,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "dueDate": "2022-06-10",
+      "entryNumber": 15,
+      "text": "Customer 4",
+      "entryType": "customerInvoice",
+      "vatAccount": {
+        "vatCode": "U25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/U25?demo=true"
+      },
+      "voucherNumber": 2,
+      "bookedInvoice": {
+        "bookedInvoiceNumber": 2,
+        "self": "https://restapi.e-conomic.com/invoices/booked/2?demo=true"
+      },
+      "invoiceNumber": 2,
+      "self": "https://restapi.e-conomic.com/entries/15?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 5820,
+        "self": "https://restapi.e-conomic.com/accounts/5820?demo=true"
+      },
+      "amount": 1187.5,
+      "amountInBaseCurrency": 1187.5,
+      "currency": "DKK",
+      "date": "2022-06-02",
+      "dueDate": "2022-06-10",
+      "entryNumber": 16,
+      "text": "Customer 4",
+      "entryType": "customerInvoice",
+      "voucherNumber": 2,
+      "customer": {
+        "customerNumber": 4,
+        "self": "https://restapi.e-conomic.com/customers/4?demo=true"
+      },
+      "bookedInvoice": {
+        "bookedInvoiceNumber": 2,
+        "self": "https://restapi.e-conomic.com/invoices/booked/2?demo=true"
+      },
+      "invoiceNumber": 2,
+      "remainder": 0,
+      "remainderInBaseCurrency": 0,
+      "self": "https://restapi.e-conomic.com/entries/16?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 1010,
+        "self": "https://restapi.e-conomic.com/accounts/1010?demo=true"
+      },
+      "amount": -3690,
+      "amountInBaseCurrency": -3690,
+      "currency": "DKK",
+      "date": "2022-06-03",
+      "dueDate": "2022-06-11",
+      "project": {
+        "projectNumber": 1,
+        "self": "https://restapi.e-conomic.com/projects/1?demo=true"
+      },
+      "entryNumber": 17,
+      "text": "Heading text",
+      "entryType": "customerInvoice",
+      "vatAccount": {
+        "vatCode": "U25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/U25?demo=true"
+      },
+      "voucherNumber": 3,
+      "quantity1": -50,
+      "quantity2": 0,
+      "bookedInvoice": {
+        "bookedInvoiceNumber": 3,
+        "self": "https://restapi.e-conomic.com/invoices/booked/3?demo=true"
+      },
+      "invoiceNumber": 3,
+      "self": "https://restapi.e-conomic.com/entries/17?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 6902,
+        "self": "https://restapi.e-conomic.com/accounts/6902?demo=true"
+      },
+      "amount": -922.5,
+      "amountInBaseCurrency": -922.5,
+      "currency": "DKK",
+      "date": "2022-06-03",
+      "dueDate": "2022-06-11",
+      "entryNumber": 18,
+      "text": "Heading text",
+      "entryType": "customerInvoice",
+      "vatAccount": {
+        "vatCode": "U25  ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/U25?demo=true"
+      },
+      "voucherNumber": 3,
+      "bookedInvoice": {
+        "bookedInvoiceNumber": 3,
+        "self": "https://restapi.e-conomic.com/invoices/booked/3?demo=true"
+      },
+      "invoiceNumber": 3,
+      "self": "https://restapi.e-conomic.com/entries/18?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 5233,
+        "self": "https://restapi.e-conomic.com/accounts/5233?demo=true"
+      },
+      "amount": 4612.5,
+      "amountInBaseCurrency": 4612.5,
+      "currency": "DKK",
+      "date": "2022-06-03",
+      "dueDate": "2022-06-11",
+      "entryNumber": 19,
+      "text": "Heading text",
+      "entryType": "customerInvoice",
+      "voucherNumber": 3,
+      "customer": {
+        "customerNumber": 2,
+        "self": "https://restapi.e-conomic.com/customers/2?demo=true"
+      },
+      "bookedInvoice": {
+        "bookedInvoiceNumber": 3,
+        "self": "https://restapi.e-conomic.com/invoices/booked/3?demo=true"
+      },
+      "invoiceNumber": 3,
+      "remainder": 4612.5,
+      "remainderInBaseCurrency": 4612.5,
+      "self": "https://restapi.e-conomic.com/entries/19?demo=true"
+    },
+    {
+      "account": {
+        "accountNumber": 4380,
+        "self": "https://restapi.e-conomic.com/accounts/4380?demo=true"
+      },
+      "amount": -5000,
+      "amountInBaseCurrency": -5000,
+      "currency": "DKK",
+      "date": "2022-06-03",
+      "entryNumber": 20,
+      "text": "VAT IV25",
+      "entryType": "financeVoucher",
+      "vatAccount": {
+        "vatCode": "IV25 ",
+        "self": "https://restapi.e-conomic.com/vat-accounts/IV25?demo=true"
+      },
+      "voucherNumber": 7,
+      "self": "https://restapi.e-conomic.com/entries/20?demo=true"
+    }
+  ],
+  "pagination": {
+    "skipPages": 0,
+    "pageSize": 20,
+    "maxPageSizeAllowed": 1000,
+    "results": 138,
+    "resultsWithoutFilter": 138,
+    "firstPage": "https://restapi.e-conomic.com/accounting-years/2022/entries?demo=true&skippages=0&pagesize=20",
+    "nextPage": "https://restapi.e-conomic.com/accounting-years/2022/entries?demo=true&skippages=1&pagesize=20",
+    "lastPage": "https://restapi.e-conomic.com/accounting-years/2022/entries?demo=true&skippages=6&pagesize=20"
+  },
+  "self": "https://restapi.e-conomic.com/accounting-years/2022/entries?demo=true"
+}

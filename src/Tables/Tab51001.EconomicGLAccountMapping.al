@@ -102,5 +102,83 @@ table 51001 "Economic GL Account Mapping"
             Clustered = true;
         }
         key(Key2; "BC Account No.") { }
+        key(Key3; "Migration Status", "Economic Account No.") { }
     }
+
+    procedure GetMappedAccount(EconomicAccountNo: Code[20]): Code[20]
+    var
+        EconomicSetup: Record "Economic Setup";
+    begin
+        // Try to find mapping for this account
+        if Get(EconomicAccountNo) and ("BC Account No." <> '') then
+            exit("BC Account No.");
+
+        // Fallback to default account
+        EconomicSetup.Get();
+        if EconomicSetup."Default GL Account No." <> '' then
+            exit(EconomicSetup."Default GL Account No.");
+
+        // No mapping and no default account
+        exit('');
+    end;
+
+    procedure CreateMappingFromEconomicAccount(EconomicAccountNo: Code[20]; EconomicAccountName: Text[100]; AccountType: Text; DebitCredit: Code[10]; VATCode: Code[20])
+    var
+        EconomicGLAccountMapping: Record "Economic GL Account Mapping";
+    begin
+        EconomicGLAccountMapping.Init();
+        EconomicGLAccountMapping."Economic Account No." := EconomicAccountNo;
+        EconomicGLAccountMapping."Economic Account Name" := EconomicAccountName;
+        EconomicGLAccountMapping."Debit Credit" := DebitCredit;
+        EconomicGLAccountMapping."VAT Code" := VATCode;
+        
+        // Set account type based on e-conomic data
+        case AccountType of
+            'profitAndLoss':
+                EconomicGLAccountMapping."Account Type" := EconomicGLAccountMapping."Account Type"::profitAndLoss;
+            'status':
+                EconomicGLAccountMapping."Account Type" := EconomicGLAccountMapping."Account Type"::status;
+            'totalFrom':
+                EconomicGLAccountMapping."Account Type" := EconomicGLAccountMapping."Account Type"::totalFrom;
+            'heading':
+                EconomicGLAccountMapping."Account Type" := EconomicGLAccountMapping."Account Type"::heading;
+            'headingStart':
+                EconomicGLAccountMapping."Account Type" := EconomicGLAccountMapping."Account Type"::headingStart;
+            'sumInterval':
+                EconomicGLAccountMapping."Account Type" := EconomicGLAccountMapping."Account Type"::sumInterval;
+            'sumAlpha':
+                EconomicGLAccountMapping."Account Type" := EconomicGLAccountMapping."Account Type"::sumAlpha;
+            else
+                EconomicGLAccountMapping."Account Type" := EconomicGLAccountMapping."Account Type"::" ";
+        end;
+        
+        EconomicGLAccountMapping."Migration Status" := EconomicGLAccountMapping."Migration Status"::"Not Started";
+        EconomicGLAccountMapping."Last Synced" := CurrentDateTime;
+        
+        if not EconomicGLAccountMapping.Insert(true) then
+            EconomicGLAccountMapping.Modify(true);
+    end;
+
+    procedure ValidateMapping(): Boolean
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        if "BC Account No." = '' then
+            exit(false);
+
+        exit(GLAccount.Get("BC Account No."));
+    end;
+
+    procedure UpdateEntryCount(NewCount: Integer)
+    begin
+        "Entry Count" := NewCount;
+        Modify(true);
+    end;
+
+    procedure SetMigrationStatus(NewStatus: Option)
+    begin
+        "Migration Status" := NewStatus;
+        "Last Synced" := CurrentDateTime;
+        Modify(true);
+    end;
 }

@@ -57,6 +57,56 @@ table 51009 "Economic Activities Cue"
             DataClassification = CustomerContent;
             Caption = 'Last DateTime Value';
         }
+        
+        // Entries Processing Cues
+        field(10; "Entries Landing Count"; Integer)
+        {
+            Caption = 'Entries in Landing';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = count("Economic Entries Landing");
+        }
+        field(11; "Entries Processing Count"; Integer)
+        {
+            Caption = 'Entries in Processing';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = count("Economic Entry Processing");
+        }
+        field(12; "Entries Not Validated"; Integer)
+        {
+            Caption = 'Entries Not Validated';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = count("Economic Entry Processing" where("Validation Status" = const("Not Validated")));
+        }
+        field(13; "Entries Validation Errors"; Integer)
+        {
+            Caption = 'Entries with Errors';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = count("Economic Entry Processing" where("Validation Status" = const("Validation Error")));
+        }
+        field(14; "Entries Validated"; Integer)
+        {
+            Caption = 'Entries Validated';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = count("Economic Entry Processing" where("Validation Status" = const(Validated)));
+        }
+        field(15; "GL Account Mappings"; Integer)
+        {
+            Caption = 'GL Account Mappings';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = count("Economic GL Account Mapping");
+        }
+        field(16; "Period Config Valid"; Boolean)
+        {
+            Caption = 'Period Config Valid';
+            Editable = false;
+            FieldClass = Normal;
+        }
     }
 
     keys
@@ -68,15 +118,30 @@ table 51009 "Economic Activities Cue"
     }
 
     procedure RefreshData()
+    var
+        EconomicSetup: Record "Economic Setup";
     begin
         LastDateTimeValue := CreateDateTime(Today, 0T) - 1;
+        
+        // Validate period configuration
+        if EconomicSetup.Get() then
+            "Period Config Valid" := EconomicSetup.ValidatePeriodConfiguration()
+        else
+            "Period Config Valid" := false;
+            
         CalcFields(
             CustomersToSync,
             VendorsToSync,
             CountryMappings,
             CustomersModified,
             VendorsModified,
-            IntegrationLogs);
+            IntegrationLogs,
+            "Entries Landing Count",
+            "Entries Processing Count",
+            "Entries Not Validated",
+            "Entries Validation Errors",
+            "Entries Validated",
+            "GL Account Mappings");
         Modify();
     end;
 
