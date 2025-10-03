@@ -21,8 +21,8 @@
     begin
         IntegrationLog.Init();
         IntegrationLog."Request Type" := RequestType;
-        IntegrationLog."API Endpoint" := CopyStr(Endpoint, 1, MaxStrLen(IntegrationLog."API Endpoint"));
-        IntegrationLog."Request Method" := GetRequestMethodOption(RequestMethod);
+        IntegrationLog."Request URL" := CopyStr(Endpoint, 1, MaxStrLen(IntegrationLog."Request URL"));
+        IntegrationLog.Operation := RequestMethod;
         IntegrationLog.Description := CopyStr(StrSubstNo('API Request: %1 %2', RequestMethod, Endpoint), 1, MaxStrLen(IntegrationLog.Description));
         if Body <> '' then
             IntegrationLog."Error Message" := CopyStr(Body, 1, MaxStrLen(IntegrationLog."Error Message"));
@@ -37,8 +37,11 @@
 
         IntegrationLog.Init();
         IntegrationLog."Request Type" := RequestType;
-        IntegrationLog."Event Type" := if(Success, IntegrationLog."Event Type"::Information, IntegrationLog."Event Type"::Error);
-        IntegrationLog."API Endpoint" := CopyStr(GetResponseUrl(Response), 1, MaxStrLen(IntegrationLog."API Endpoint"));
+        if Success then
+            IntegrationLog."Event Type" := IntegrationLog."Event Type"::Information
+        else
+            IntegrationLog."Event Type" := IntegrationLog."Event Type"::Error;
+        IntegrationLog."Request URL" := CopyStr(GetResponseUrl(Response), 1, MaxStrLen(IntegrationLog."Request URL"));
         IntegrationLog.Description := CopyStr(
             StrSubstNo('API Response: Status %1 - %2',
                 Response.HttpStatusCode,
@@ -83,11 +86,15 @@
     end;
 
     local procedure GetResponseUrl(Response: HttpResponseMessage): Text
+    var
+        Values: List of [Text];
     begin
-        if Response.Headers.Contains('Location') then
-            exit(Response.Headers.Get('Location'))
-        else
-            exit('');
+        if Response.Headers.Contains('Location') then begin
+            Response.Headers.GetValues('Location', Values);
+            if Values.Count > 0 then
+                exit(Values.Get(1));
+        end;
+        exit('');
     end;
 
     local procedure GetResponseReasonPhrase(Response: HttpResponseMessage): Text
@@ -117,7 +124,7 @@
         IntegrationLog: Record "Economic Integration Log";
     begin
         if IntegrationLog.Get(LogEntryNo) then
-            IntegrationLog."Request Body".CreateOutStream(OutStr, TextEncoding::UTF8);
+            IntegrationLog."Response Data".CreateOutStream(OutStr, TextEncoding::UTF8);
     end;
 
     local procedure GetResponseBodyOutStream(LogEntryNo: Integer) OutStr: OutStream
@@ -125,7 +132,7 @@
         IntegrationLog: Record "Economic Integration Log";
     begin
         if IntegrationLog.Get(LogEntryNo) then
-            IntegrationLog."Response Body".CreateOutStream(OutStr, TextEncoding::UTF8);
+            IntegrationLog."Response Data".CreateOutStream(OutStr, TextEncoding::UTF8);
     end;
 
     procedure GetAccounts()
@@ -246,7 +253,7 @@
 
     procedure CreateGeneralJournalEntries()
     var
-        IntegrationLog: Record "Integration Log";
+        IntegrationLog: Record "Economic Integration Log";
         GLAccountMapping: Record "Economic GL Account Mapping";
         GenJournalLine: Record "Gen. Journal Line";
         TotalEntries: Integer;
@@ -304,11 +311,12 @@
         JsonArray.ReadFrom(ResponseText);
         foreach JsonToken in JsonArray do begin
             JsonObject := JsonToken.AsObject();
-            DocumentNo := Format(JsonObject.Get('id')); // Assuming 'id' is the field for document number
+            if JsonObject.Get('id', JsonToken) then
+                DocumentNo := Format(JsonToken.AsValue().AsText());
 
             GenJournalLine.Init();
             GenJournalLine."Document No." := DocumentNo;
-            GenJournalLine."Account No." := GLAccountMapping."G/L Account No.";
+            GenJournalLine."Account No." := GLAccountMapping."BC Account No.";
             // Add other fields as needed from the JsonObject
             // GenJournalLine.Amount := ...
             // GenJournalLine."Posting Date" := ...
@@ -319,14 +327,14 @@
         exit(EntryCount);
     end;
 
-    local procedure CreateLogEntry(var IntegrationLog: Record "Integration Log"; Endpoint: Text; Method: Text; RequestType: Enum "Economic Request Type"): Integer
+    local procedure CreateLogEntry(var IntegrationLog: Record "Economic Integration Log"; Endpoint: Text; Method: Text; RequestType: Enum "Economic Request Type"): Integer
     begin
         IntegrationLog.Init();
         IntegrationLog."Entry No." := GetNextLogEntryNo();
-        IntegrationLog."API Endpoint" := Endpoint;
-        IntegrationLog."HTTP Method" := Method;
+        IntegrationLog."Request URL" := Endpoint;
+        IntegrationLog.Operation := Method;
         IntegrationLog."Request Type" := RequestType;
-        IntegrationLog."Start Time" := CurrentDateTime;
+        IntegrationLog."Log Timestamp" := CurrentDateTime;
         if IntegrationLog.Insert() then
             exit(IntegrationLog."Entry No.")
         else
@@ -335,12 +343,15 @@
 
     local procedure UpdateLogEntry(EntryNo: Integer; Success: Boolean; Message: Text)
     var
-        IntegrationLog: Record "Integration Log";
+        IntegrationLog: Record "Economic Integration Log";
     begin
         if IntegrationLog.Get(EntryNo) then begin
-            IntegrationLog."End Time" := CurrentDateTime;
-            IntegrationLog.Success := Success;
-            IntegrationLog.Message := Message;
+            IntegrationLog."Log Timestamp" := CurrentDateTime;
+            if Success then
+                IntegrationLog."Event Type" := IntegrationLog."Event Type"::Information
+            else
+                IntegrationLog."Event Type" := IntegrationLog."Event Type"::Error;
+            IntegrationLog.Description := Message;
             IntegrationLog.Modify();
         end;
     end;
@@ -396,10 +407,10 @@
         OutStream: OutStream;
     begin
         IntegrationLog.Init();
-        IntegrationLog."Date Time" := CurrentDateTime;
+        IntegrationLog."Log Timestamp" := CurrentDateTime;
         IntegrationLog.Operation := CopyStr(Operation, 1, MaxStrLen(IntegrationLog.Operation));
         IntegrationLog."Status Code" := 0;
-        IntegrationLog."Status Text" := 'Setup Error';
+        IntegrationLog.Description := 'Setup Error';
         IntegrationLog."Error Message" := CopyStr(ErrorText, 1, MaxStrLen(IntegrationLog."Error Message"));
         IntegrationLog."Request URL" := '';
 
@@ -451,15 +462,15 @@
             Error('No write permission for Integration Log table');
 
         IntegrationLog.Init();
-        IntegrationLog."Date Time" := CurrentDateTime;
+        IntegrationLog."Log Timestamp" := CurrentDateTime;
         IntegrationLog.Operation := CopyStr(Operation, 1, MaxStrLen(IntegrationLog.Operation));
 
         if Response.IsSuccessStatusCode() then begin
             IntegrationLog."Status Code" := Response.HttpStatusCode;
-            IntegrationLog."Status Text" := CopyStr(Response.ReasonPhrase, 1, MaxStrLen(IntegrationLog."Status Text"));
+            IntegrationLog.Description := CopyStr(Response.ReasonPhrase, 1, MaxStrLen(IntegrationLog.Description));
         end else begin
             IntegrationLog."Status Code" := 0;
-            IntegrationLog."Status Text" := 'Error';
+            IntegrationLog.Description := 'Error';
         end;
 
         IntegrationLog."Request URL" := CopyStr(RequestUrl, 1, MaxStrLen(IntegrationLog."Request URL"));
