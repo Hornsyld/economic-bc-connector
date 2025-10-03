@@ -157,10 +157,10 @@ page 51031 "Economic Entry Processing List"
                 begin
                     ValidatedCount := ProcessVoucherValidation(Rec."Economic Voucher Number", Rec."Posting Date", ErrorCount);
                     if ErrorCount = 0 then
-                        Message('All %1 entries for voucher %2 and posting date %3 validated successfully.', 
+                        Message('All %1 entries for voucher %2 and posting date %3 validated successfully.',
                             ValidatedCount, Rec."Economic Voucher Number", Rec."Posting Date")
                     else
-                        Message('%1 entries validated successfully, %2 entries had validation errors for voucher %3 and posting date %4.', 
+                        Message('%1 entries validated successfully, %2 entries had validation errors for voucher %3 and posting date %4.',
                             ValidatedCount, ErrorCount, Rec."Economic Voucher Number", Rec."Posting Date");
                     CurrPage.Update();
                 end;
@@ -230,10 +230,10 @@ page 51031 "Economic Entry Processing List"
     begin
         ValidatedCount := 0;
         ErrorCount := 0;
-        
+
         // Get current filter to validate only visible records
         EconomicEntryProcessing.CopyFilters(Rec);
-        
+
         if EconomicEntryProcessing.FindSet() then
             repeat
                 if EconomicEntryProcessing.ValidateEntry() then
@@ -249,14 +249,14 @@ page 51031 "Economic Entry Processing List"
     begin
         ValidatedCount := 0;
         ErrorCount := 0;
-        
+
         if VoucherNumber = 0 then
             exit(0);
-            
+
         // Find all entries with the same voucher number and posting date
         EconomicEntryProcessing.SetRange("Economic Voucher Number", VoucherNumber);
         EconomicEntryProcessing.SetRange("Posting Date", PostingDate);
-        
+
         if EconomicEntryProcessing.FindSet() then
             repeat
                 if EconomicEntryProcessing.ValidateEntry() then
