@@ -393,6 +393,7 @@ table 51021 "Economic Entry Processing"
         "Currency Code" := LandingRec."Currency Code";
         Description := CopyStr(LandingRec."Entry Text", 1, MaxStrLen(Description));
         "External Document No." := LandingRec."External Document No.";
+        "Economic Voucher Number" := LandingRec."Voucher Number";
 
         // Set processing defaults
         EconomicSetup.Get();

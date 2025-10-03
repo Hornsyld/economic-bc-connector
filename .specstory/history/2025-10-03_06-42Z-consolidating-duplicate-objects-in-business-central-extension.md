@@ -7317,3 +7317,15 @@ This approach gives us full control over the entry numbering and eliminates the 
 
 ---
 
+_**User (2025-10-03 22:17Z)**_
+
+Great - it works. in the Economic Entry Processing page. I want to be able to validate all and also the same way is landing page where it looks at vouchernumber & posting date
+
+---
+
+_**Assistant (copilot/claude-sonnet-4)**_
+
+Great! Let me first check the current Economic Entry Processing page to see what actions are already there, and then add the voucher-based validation functionality. Now I can see the current structure. I need to add two new actions: "Validate All" and "Validate Voucher Entries" (similar to how we handled the processing in the landing page). Let me also check what fields are available for voucher number in the Economic Entry Processing table: Perfect! The table has "Economic Voucher Number" field. Let me also check if we need to populate this field from the landing record: Let me check if the voucher number is being copied from the landing record: I notice that the voucher number is not being copied from the landing record. Let me first fix that, and then 
+
+---
+

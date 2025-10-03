@@ -62,6 +62,11 @@ page 51031 "Economic Entry Processing List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the posting date for this entry.';
                 }
+                field("Economic Voucher Number"; Rec."Economic Voucher Number")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the voucher number from e-conomic.';
+                }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
@@ -115,6 +120,48 @@ page 51031 "Economic Entry Processing List"
                         Message('Entry %1 validated successfully.', Rec."Entry No.")
                     else
                         Message('Entry %1 validation failed: %2', Rec."Entry No.", Rec."Validation Error");
+                    CurrPage.Update();
+                end;
+            }
+            action(ValidateAll)
+            {
+                ApplicationArea = All;
+                Caption = 'Validate All Entries';
+                Image = TestReport;
+                ToolTip = 'Validate all entries in the current view for Business Central integration.';
+
+                trigger OnAction()
+                var
+                    ValidatedCount: Integer;
+                    ErrorCount: Integer;
+                begin
+                    ValidatedCount := ValidateAllEntries(ErrorCount);
+                    if ErrorCount = 0 then
+                        Message('All %1 entries validated successfully.', ValidatedCount)
+                    else
+                        Message('%1 entries validated successfully, %2 entries had validation errors.', ValidatedCount, ErrorCount);
+                    CurrPage.Update();
+                end;
+            }
+            action(ValidateVoucherEntries)
+            {
+                ApplicationArea = All;
+                Caption = 'Validate Voucher Entries';
+                Image = TestReport;
+                ToolTip = 'Validate all entries with the same voucher number and posting date.';
+
+                trigger OnAction()
+                var
+                    ValidatedCount: Integer;
+                    ErrorCount: Integer;
+                begin
+                    ValidatedCount := ProcessVoucherValidation(Rec."Economic Voucher Number", Rec."Posting Date", ErrorCount);
+                    if ErrorCount = 0 then
+                        Message('All %1 entries for voucher %2 and posting date %3 validated successfully.', 
+                            ValidatedCount, Rec."Economic Voucher Number", Rec."Posting Date")
+                    else
+                        Message('%1 entries validated successfully, %2 entries had validation errors for voucher %3 and posting date %4.', 
+                            ValidatedCount, ErrorCount, Rec."Economic Voucher Number", Rec."Posting Date");
                     CurrPage.Update();
                 end;
             }
@@ -176,4 +223,46 @@ page 51031 "Economic Entry Processing List"
             }
         }
     }
+
+    local procedure ValidateAllEntries(var ErrorCount: Integer) ValidatedCount: Integer
+    var
+        EconomicEntryProcessing: Record "Economic Entry Processing";
+    begin
+        ValidatedCount := 0;
+        ErrorCount := 0;
+        
+        // Get current filter to validate only visible records
+        EconomicEntryProcessing.CopyFilters(Rec);
+        
+        if EconomicEntryProcessing.FindSet() then
+            repeat
+                if EconomicEntryProcessing.ValidateEntry() then
+                    ValidatedCount += 1
+                else
+                    ErrorCount += 1;
+            until EconomicEntryProcessing.Next() = 0;
+    end;
+
+    local procedure ProcessVoucherValidation(VoucherNumber: Integer; PostingDate: Date; var ErrorCount: Integer) ValidatedCount: Integer
+    var
+        EconomicEntryProcessing: Record "Economic Entry Processing";
+    begin
+        ValidatedCount := 0;
+        ErrorCount := 0;
+        
+        if VoucherNumber = 0 then
+            exit(0);
+            
+        // Find all entries with the same voucher number and posting date
+        EconomicEntryProcessing.SetRange("Economic Voucher Number", VoucherNumber);
+        EconomicEntryProcessing.SetRange("Posting Date", PostingDate);
+        
+        if EconomicEntryProcessing.FindSet() then
+            repeat
+                if EconomicEntryProcessing.ValidateEntry() then
+                    ValidatedCount += 1
+                else
+                    ErrorCount += 1;
+            until EconomicEntryProcessing.Next() = 0;
+    end;
 }
