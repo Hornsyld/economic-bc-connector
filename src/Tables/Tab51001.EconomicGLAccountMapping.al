@@ -131,7 +131,7 @@ table 51001 "Economic GL Account Mapping"
         EconomicGLAccountMapping."Economic Account Name" := EconomicAccountName;
         EconomicGLAccountMapping."Debit Credit" := DebitCredit;
         EconomicGLAccountMapping."VAT Code" := VATCode;
-        
+
         // Set account type based on e-conomic data
         case AccountType of
             'profitAndLoss':
@@ -151,10 +151,10 @@ table 51001 "Economic GL Account Mapping"
             else
                 EconomicGLAccountMapping."Account Type" := EconomicGLAccountMapping."Account Type"::" ";
         end;
-        
+
         EconomicGLAccountMapping."Migration Status" := EconomicGLAccountMapping."Migration Status"::"Not Started";
         EconomicGLAccountMapping."Last Synced" := CurrentDateTime;
-        
+
         if not EconomicGLAccountMapping.Insert(true) then
             EconomicGLAccountMapping.Modify(true);
     end;

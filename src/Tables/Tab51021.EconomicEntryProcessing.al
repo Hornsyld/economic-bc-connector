@@ -25,7 +25,7 @@ table 51021 "Economic Entry Processing"
             Caption = 'Accounting Year';
             Description = 'The accounting year this entry belongs to';
         }
-        
+
         // Business Central Mapping
         field(10; "BC Document No."; Code[20])
         {
@@ -64,7 +64,7 @@ table 51021 "Economic Entry Processing"
             Caption = 'BC Bal Account No.';
             Description = 'Business Central balancing account number';
         }
-        
+
         // Entry Data
         field(20; "Economic Account Number"; Integer)
         {
@@ -119,7 +119,7 @@ table 51021 "Economic Entry Processing"
             Caption = 'Economic Voucher Number';
             Description = 'Original e-conomic voucher number';
         }
-        
+
         // VAT Information
         field(30; "VAT Bus. Posting Group"; Code[20])
         {
@@ -156,7 +156,7 @@ table 51021 "Economic Entry Processing"
             Caption = 'Economic VAT Code';
             Description = 'Original e-conomic VAT code';
         }
-        
+
         // Customer/Vendor Information
         field(40; "Economic Customer No."; Integer)
         {
@@ -180,7 +180,7 @@ table 51021 "Economic Entry Processing"
             Description = 'Business Central vendor number';
             TableRelation = Vendor;
         }
-        
+
         // Dimensions
         field(50; "Shortcut Dimension 1 Code"; Code[20])
         {
@@ -201,7 +201,7 @@ table 51021 "Economic Entry Processing"
             Caption = 'Economic Project No.';
             Description = 'e-conomic project number';
         }
-        
+
         // Processing Status
         field(90; "Validation Status"; Option)
         {
@@ -375,17 +375,17 @@ table 51021 "Economic Entry Processing"
         ExistingRec.SetRange("Landing Entry No.", LandingRec."Entry No.");
         if not ExistingRec.IsEmpty then
             exit; // Record already exists, don't create duplicate
-            
+
         Init();
-        
+
         // Set next entry number
         "Entry No." := GetNextEntryNo();
-        
+
         // Link to landing record
         "Landing Entry No." := LandingRec."Entry No.";
         "Economic Entry Number" := LandingRec."Economic Entry Number";
         "Posting Date" := LandingRec."Posting Date";
-        
+
         // Copy economic data
         "Economic Account Number" := LandingRec."Account Number";
         Amount := LandingRec.Amount;
@@ -393,19 +393,19 @@ table 51021 "Economic Entry Processing"
         "Currency Code" := LandingRec."Currency Code";
         Description := CopyStr(LandingRec."Entry Text", 1, MaxStrLen(Description));
         "External Document No." := LandingRec."External Document No.";
-        
+
         // Set processing defaults
         EconomicSetup.Get();
         "BC Journal Template" := EconomicSetup."Entries Journal Template";
         if "BC Journal Template" = '' then
             "BC Journal Template" := EconomicSetup."Default Journal Template";
-            
+
         // Set account type as G/L Account by default
         "BC Account Type" := "BC Account Type"::"G/L Account";
-        
+
         // Set initial status
         "Validation Status" := "Validation Status"::"Not Validated";
-        
+
         Insert(true);
     end;
 
@@ -454,7 +454,7 @@ table 51021 "Economic Entry Processing"
         GenJournalLine."Document No." := "BC Document No.";
         GenJournalLine."External Document No." := "External Document No.";
         GenJournalLine."Account Type" := "BC Account Type";
-        
+
         case "BC Account Type" of
             "BC Account Type"::"G/L Account":
                 GenJournalLine."Account No." := "BC Account No.";

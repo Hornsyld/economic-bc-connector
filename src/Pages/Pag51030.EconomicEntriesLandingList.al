@@ -115,7 +115,7 @@ page 51030 "Economic Entries Landing List"
                 begin
                     ProcessedCount := ProcessVoucherEntries(Rec."Voucher Number", Rec."Posting Date");
                     if ProcessedCount > 0 then
-                        Message('Processing records created for %1 entries with voucher %2 and posting date %3.', 
+                        Message('Processing records created for %1 entries with voucher %2 and posting date %3.',
                             ProcessedCount, Rec."Voucher Number", Rec."Posting Date")
                     else
                         Message('No entries were processed.');
@@ -150,26 +150,26 @@ page 51030 "Economic Entries Landing List"
         ExistingProcessingRec: Record "Economic Entry Processing";
     begin
         ProcessedCount := 0;
-        
+
         if VoucherNumber = 0 then
             exit(0);
-            
+
         // Find all entries with the same voucher number and posting date
         LandingRec.SetRange("Voucher Number", VoucherNumber);
         LandingRec.SetRange("Posting Date", PostingDate);
         LandingRec.SetRange("Processing Status", LandingRec."Processing Status"::New);
-        
+
         if LandingRec.FindSet() then
             repeat
                 // Check if processing record already exists for this landing entry
                 ExistingProcessingRec.SetRange("Landing Entry No.", LandingRec."Entry No.");
                 if ExistingProcessingRec.IsEmpty then begin
                     EconomicEntryProcessing.CreateFromLandingRecord(LandingRec);
-                    
+
                     // Update landing record status
                     LandingRec."Processing Status" := LandingRec."Processing Status"::Synced;
                     LandingRec.Modify();
-                    
+
                     ProcessedCount += 1;
                 end;
             until LandingRec.Next() = 0;

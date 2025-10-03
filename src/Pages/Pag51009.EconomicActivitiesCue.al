@@ -67,7 +67,7 @@ page 51009 "Economic Activities Cue"
                     ApplicationArea = All;
                     Caption = 'Entries in Landing';
                     ToolTip = 'Shows the number of entries stored in the landing table from e-conomic API.';
-                    
+
                     trigger OnDrillDown()
                     var
                         EconomicEntriesLanding: Record "Economic Entries Landing";
@@ -80,7 +80,7 @@ page 51009 "Economic Activities Cue"
                     ApplicationArea = All;
                     Caption = 'Entries in Processing';
                     ToolTip = 'Shows the number of entries being processed for Business Central integration.';
-                    
+
                     trigger OnDrillDown()
                     var
                         EconomicEntryProcessing: Record "Economic Entry Processing";
@@ -105,7 +105,7 @@ page 51009 "Economic Activities Cue"
                     Caption = 'Validated Entries';
                     ToolTip = 'Shows the number of entries that have passed validation and are ready for journal creation.';
                     Style = Favorable;
-                    
+
                     trigger OnDrillDown()
                     var
                         EconomicEntryProcessing: Record "Economic Entry Processing";
@@ -120,7 +120,7 @@ page 51009 "Economic Activities Cue"
                     Caption = 'Not Validated';
                     ToolTip = 'Shows the number of entries that have not been validated yet.';
                     Style = Attention;
-                    
+
                     trigger OnDrillDown()
                     var
                         EconomicEntryProcessing: Record "Economic Entry Processing";
@@ -135,7 +135,7 @@ page 51009 "Economic Activities Cue"
                     Caption = 'Validation Errors';
                     ToolTip = 'Shows the number of entries with validation errors that need attention.';
                     Style = Unfavorable;
-                    
+
                     trigger OnDrillDown()
                     var
                         EconomicEntryProcessing: Record "Economic Entry Processing";
@@ -155,7 +155,7 @@ page 51009 "Economic Activities Cue"
                     ToolTip = 'Shows whether the entries period configuration is valid. Click to open setup.';
                     Style = Favorable;
                     StyleExpr = Rec."Period Config Valid";
-                    
+
                     trigger OnDrillDown()
                     begin
                         Page.Run(Page::"Economic Setup");

@@ -57,7 +57,7 @@ table 51009 "Economic Activities Cue"
             DataClassification = CustomerContent;
             Caption = 'Last DateTime Value';
         }
-        
+
         // Entries Processing Cues
         field(10; "Entries Landing Count"; Integer)
         {
@@ -122,13 +122,13 @@ table 51009 "Economic Activities Cue"
         EconomicSetup: Record "Economic Setup";
     begin
         LastDateTimeValue := CreateDateTime(Today, 0T) - 1;
-        
+
         // Validate period configuration
         if EconomicSetup.Get() then
             "Period Config Valid" := EconomicSetup.ValidatePeriodConfiguration()
         else
             "Period Config Valid" := false;
-            
+
         CalcFields(
             CustomersToSync,
             VendorsToSync,

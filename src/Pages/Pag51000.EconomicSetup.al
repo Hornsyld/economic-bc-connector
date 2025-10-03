@@ -110,7 +110,7 @@ page 51000 "Economic Setup"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Use demo data year instead of sync period configuration';
-                    
+
                     trigger OnValidate()
                     begin
                         CurrPage.Update();
@@ -126,7 +126,7 @@ page 51000 "Economic Setup"
                 {
                     Caption = 'Advanced Period Setup';
                     Visible = not Rec."Use Demo Data Year";
-                    
+
                     field("Entries Sync Years Count"; Rec."Entries Sync Years Count")
                     {
                         ApplicationArea = All;
@@ -207,22 +207,22 @@ page 51000 "Economic Setup"
 
                     MessageText := 'Period Configuration Test:' + LineBreak;
                     MessageText += 'Years to synchronize: ';
-                    
+
                     foreach Year in YearsList do begin
                         if MessageText <> 'Period Configuration Test:' + LineBreak + 'Years to synchronize: ' then
                             MessageText += ', ';
                         MessageText += Format(Year);
                     end;
-                    
+
                     MessageText += LineBreak + LineBreak;
                     MessageText += 'API URLs that will be called:' + LineBreak;
-                    
+
                     foreach Url in UrlsList do begin
                         MessageText += '• ' + Url + LineBreak;
                     end;
-                    
+
                     MessageText += LineBreak + 'Legacy Filter (deprecated): ' + APIFilter;
-                    
+
                     Message(MessageText);
                 end;
             }

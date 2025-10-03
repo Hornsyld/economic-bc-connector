@@ -265,7 +265,7 @@ codeunit 51000 "Economic Management"
 
         // Get all entries API URLs for configured years
         UrlsList := EconomicSetup.GetEntriesAPIUrls(HttpClient.GetBaseUrl());
-        
+
         if UrlsList.Count = 0 then begin
             Message('No accounting years configured for entries synchronization.');
             exit;
@@ -305,11 +305,11 @@ codeunit 51000 "Economic Management"
         // Process all pages until no more pages are available
         while HasMorePages do begin
             PageCount += 1;
-            
+
             if HttpClient.SendGetRequest(CurrentUrl, ResponseContent, RequestType) then begin
                 EntriesProcessedForPage := ProcessEntriesResponseToLanding(ResponseContent, BaseUrl, RequestType);
                 TotalProcessedCount += EntriesProcessedForPage;
-                
+
                 // Check if there's a next page
                 NextPageUrl := GetNextPageUrl(ResponseContent);
                 if NextPageUrl <> '' then begin
@@ -340,7 +340,7 @@ codeunit 51000 "Economic Management"
         // Check for pagination object
         if JsonObject.Get('pagination', JsonToken) and JsonToken.IsObject() then begin
             PaginationObject := JsonToken.AsObject();
-            
+
             // Look for nextPage URL
             if PaginationObject.Get('nextPage', JsonToken) and JsonToken.IsValue() then begin
                 NextUrl := JsonToken.AsValue().AsText();
@@ -441,8 +441,8 @@ codeunit 51000 "Economic Management"
         EconomicEntriesLanding.SetRawJSONData(Format(EntryJson));
 
         // Log the data we're trying to insert for debugging
-        Logger.LogSuccess('CreateLandingRecord', StrSubstNo('Attempting to insert entry %1, Account: %2, Year: %3, Amount: %4', 
-            EntryNumber, 
+        Logger.LogSuccess('CreateLandingRecord', StrSubstNo('Attempting to insert entry %1, Account: %2, Year: %3, Amount: %4',
+            EntryNumber,
             EconomicEntriesLanding."Account Number",
             EconomicEntriesLanding."Accounting Year",
             EconomicEntriesLanding.Amount));
@@ -554,7 +554,7 @@ codeunit 51000 "Economic Management"
                 YearText := CopyStr(SourceUrl, StartPos, EndPos - 1)
             else
                 YearText := CopyStr(SourceUrl, StartPos);
-            
+
             if not Evaluate(AccountingYear, YearText) then
                 AccountingYear := 0;
         end else

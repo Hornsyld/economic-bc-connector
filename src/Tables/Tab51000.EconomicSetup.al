@@ -34,7 +34,7 @@ table 51000 "Economic Setup"
             TableRelation = "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Default Journal Template"));
             DataClassification = CustomerContent;
         }
-        
+
         // Entries Processing Configuration
         field(10; "Default GL Account No."; Code[20])
         {
@@ -89,7 +89,7 @@ table 51000 "Economic Setup"
             Caption = 'Default Bal. Account No.';
             Description = 'Default balancing account number for entries';
             DataClassification = CustomerContent;
-            
+
             trigger OnValidate()
             begin
                 case "Default Bal. Account Type" of
@@ -127,7 +127,7 @@ table 51000 "Economic Setup"
                 end;
             end;
         }
-        
+
         // Entries Period Configuration
         field(20; "Entries Sync From Year"; Integer)
         {
@@ -136,7 +136,7 @@ table 51000 "Economic Setup"
             DataClassification = CustomerContent;
             MinValue = 2000;
             MaxValue = 9999;
-            
+
             trigger OnValidate()
             begin
                 if "Entries Sync From Year" <> 0 then begin
@@ -154,7 +154,7 @@ table 51000 "Economic Setup"
             DataClassification = CustomerContent;
             MinValue = 0;
             MaxValue = 9999;
-            
+
             trigger OnValidate()
             begin
                 if "Entries Sync To Year" <> 0 then begin
@@ -172,7 +172,7 @@ table 51000 "Economic Setup"
             DataClassification = CustomerContent;
             MinValue = 0;
             MaxValue = 10;
-            
+
             trigger OnValidate()
             begin
                 if "Entries Sync Years Count" <> 0 then begin
@@ -196,7 +196,7 @@ table 51000 "Economic Setup"
             Description = 'Use demo data year instead of sync period configuration';
             DataClassification = CustomerContent;
             InitValue = true;
-            
+
             trigger OnValidate()
             begin
                 if "Use Demo Data Year" then begin
@@ -267,7 +267,7 @@ table 51000 "Economic Setup"
             exit("Entries Sync Period Filter");
 
         YearsList := GetAccountingYearsToSync();
-        
+
         foreach Year in YearsList do begin
             if FilterText <> '' then
                 FilterText += '|';
@@ -295,8 +295,8 @@ table 51000 "Economic Setup"
             exit(true);
         end;
 
-        if ("Entries Sync Years Count" = 0) and 
-           ("Entries Sync From Year" = 0) and 
+        if ("Entries Sync Years Count" = 0) and
+           ("Entries Sync From Year" = 0) and
            ("Entries Sync To Year" = 0) then
             exit(false);
 
@@ -313,7 +313,7 @@ table 51000 "Economic Setup"
         // This method is deprecated - use GetEntriesAPIUrls() instead
         YearFilter := GetAccountingYearFilter();
         UrlWithFilter := BaseUrl;
-        
+
         if YearFilter <> '' then begin
             if UrlWithFilter.Contains('?') then
                 UrlWithFilter += '&'
@@ -333,17 +333,17 @@ table 51000 "Economic Setup"
         YearUrl: Text;
     begin
         YearsList := GetAccountingYearsToSync();
-        
+
         foreach Year in YearsList do begin
             YearUrl := BaseUrl;
             if not YearUrl.EndsWith('/') then
                 YearUrl += '/';
             YearUrl += 'accounting-years/' + Format(Year) + '/entries';
-            
+
             // Add demo parameter if using demo data year
             if "Use Demo Data Year" and (Year = "Demo Data Year") then
                 YearUrl += '?demo=true';
-                
+
             UrlsList.Add(YearUrl);
         end;
 
@@ -358,11 +358,11 @@ table 51000 "Economic Setup"
         if not YearUrl.EndsWith('/') then
             YearUrl += '/';
         YearUrl += 'accounting-years/' + Format(Year) + '/entries';
-        
+
         // Add demo parameter if using demo data year
         if "Use Demo Data Year" and (Year = "Demo Data Year") then
             YearUrl += '?demo=true';
-            
+
         exit(YearUrl);
     end;
 
@@ -371,7 +371,7 @@ table 51000 "Economic Setup"
         YearFilter: Text;
     begin
         YearFilter := GetAccountingYearFilter();
-        
+
         if YearFilter <> '' then
             exit('accountingYear$in:' + YearFilter);
 

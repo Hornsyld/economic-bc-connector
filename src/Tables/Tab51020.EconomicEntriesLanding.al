@@ -77,7 +77,7 @@ table 51020 "Economic Entries Landing"
             Caption = 'External Document No.';
             Description = 'External document number if applicable';
         }
-        
+
         // Customer/Vendor Information
         field(30; "Customer Number"; Integer)
         {
@@ -94,7 +94,7 @@ table 51020 "Economic Entries Landing"
             Caption = 'Supplier Invoice Number';
             Description = 'A unique identifier of the supplier invoice';
         }
-        
+
         // VAT Information
         field(40; "VAT Code"; Code[10])
         {
@@ -113,14 +113,14 @@ table 51020 "Economic Entries Landing"
             DecimalPlaces = 2 : 5;
             Description = 'VAT base amount if applicable';
         }
-        
+
         // Project Information
         field(50; "Project Number"; Integer)
         {
             Caption = 'Project Number';
             Description = 'e-conomic project number if applicable';
         }
-        
+
         // Quantities and Units
         field(60; "Quantity 1"; Decimal)
         {
@@ -144,7 +144,7 @@ table 51020 "Economic Entries Landing"
             Caption = 'Unit 2 Number';
             Description = 'The unique identifier of the second unit';
         }
-        
+
         // Booking Information
         field(70; "Booked Invoice Number"; Integer)
         {
@@ -168,7 +168,7 @@ table 51020 "Economic Entries Landing"
             DecimalPlaces = 2 : 5;
             Description = 'The remainder in base currency on the entry';
         }
-        
+
         // Cost Type and Departmental Distribution
         field(80; "Cost Type Number"; Integer)
         {
@@ -180,7 +180,7 @@ table 51020 "Economic Entries Landing"
             Caption = 'Departmental Distribution No.';
             Description = 'A unique identifier of the departmental distribution';
         }
-        
+
         // Processing Information
         field(90; "Import Date Time"; DateTime)
         {
@@ -212,7 +212,7 @@ table 51020 "Economic Entries Landing"
             Caption = 'Posted';
             Description = 'Indicates if this entry has been posted in Business Central';
         }
-        
+
         // Raw JSON Data
         field(100; "Raw JSON Data"; Blob)
         {
@@ -266,7 +266,7 @@ table 51020 "Economic Entries Landing"
         CalcFields("Raw JSON Data");
         if not "Raw JSON Data".HasValue then
             exit('');
-        
+
         "Raw JSON Data".CreateInStream(InStream, TextEncoding::UTF8);
         InStream.ReadText(JSONText);
         exit(JSONText);
