@@ -62,6 +62,28 @@ page 51000 "Economic Setup"
         }
     }
 
+    actions
+    {
+        area(Processing)
+        {
+            action(OpenRoleCenter)
+            {
+                ApplicationArea = All;
+                Caption = 'Open Economic Integration Role Center';
+                Image = Home;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'Open the Economic Integration Role Center for centralized access to all integration features';
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Economic Role Center");
+                end;
+            }
+        }
+    }
+
     trigger OnOpenPage()
     begin
         if not Rec.Get() then begin

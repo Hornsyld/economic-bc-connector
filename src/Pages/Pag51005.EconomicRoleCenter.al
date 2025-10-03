@@ -5,6 +5,7 @@ page 51005 "Economic Role Center"
     UsageCategory = Administration;
     Caption = 'Economic Integration Role Center';
     AccessByPermission = tabledata "Economic Setup" = R;
+    AdditionalSearchTerms = 'economic,integration,e-conomic,role center';
 
     layout
     {
