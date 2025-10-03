@@ -81,6 +81,24 @@ page 51000 "Economic Setup"
                     Page.Run(Page::"Economic Role Center");
                 end;
             }
+
+            action(CreateProfile)
+            {
+                ApplicationArea = All;
+                Caption = 'Create Economic Integration Profile';
+                Image = AddAction;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'Create the Economic Integration profile to make it selectable in the Roles list';
+
+                trigger OnAction()
+                var
+                    ProfileSetup: Codeunit "Economic Profile Setup";
+                begin
+                    ProfileSetup.CreateEconomicProfile();
+                end;
+            }
         }
     }
 
