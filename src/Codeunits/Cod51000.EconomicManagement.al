@@ -20,10 +20,12 @@
     local procedure LogAPIRequest(RequestMethod: Text; Endpoint: Text; RequestType: Enum "Economic Request Type"; Body: Text)
     begin
         IntegrationLog.Init();
+        IntegrationLog."Entry No." := GetNextLogEntryNo();
         IntegrationLog."Request Type" := RequestType;
         IntegrationLog."Request URL" := CopyStr(Endpoint, 1, MaxStrLen(IntegrationLog."Request URL"));
         IntegrationLog.Operation := RequestMethod;
-        IntegrationLog.Description := CopyStr(StrSubstNo('API Request: %1 %2', RequestMethod, Endpoint), 1, MaxStrLen(IntegrationLog.Description));
+        IntegrationLog."Description" := CopyStr(StrSubstNo('API Request: %1 %2', RequestMethod, Endpoint), 1, MaxStrLen(IntegrationLog."Description"));
+        IntegrationLog."Log Timestamp" := CurrentDateTime;
         if Body <> '' then
             IntegrationLog."Error Message" := CopyStr(Body, 1, MaxStrLen(IntegrationLog."Error Message"));
         IntegrationLog.Insert(true);
@@ -36,7 +38,9 @@
         Success := Response.IsSuccessStatusCode();
 
         IntegrationLog.Init();
+        IntegrationLog."Entry No." := GetNextLogEntryNo();
         IntegrationLog."Request Type" := RequestType;
+        IntegrationLog."Log Timestamp" := CurrentDateTime;
         if Success then
             IntegrationLog."Event Type" := IntegrationLog."Event Type"::Information
         else
@@ -47,7 +51,7 @@
                 Response.HttpStatusCode,
                 GetResponseReasonPhrase(Response)),
             1,
-            MaxStrLen(IntegrationLog.Description));
+            MaxStrLen(IntegrationLog."Description"));
 
         if not Success then begin
             ErrorText := GetErrorText(Response);
@@ -60,9 +64,11 @@
     local procedure LogError(RequestType: Enum "Economic Request Type"; ErrorText: Text; Context: Text)
     begin
         IntegrationLog.Init();
+        IntegrationLog."Entry No." := GetNextLogEntryNo();
         IntegrationLog."Request Type" := RequestType;
         IntegrationLog."Event Type" := IntegrationLog."Event Type"::Error;
-        IntegrationLog.Description := CopyStr(Context, 1, MaxStrLen(IntegrationLog.Description));
+        IntegrationLog."Log Timestamp" := CurrentDateTime;
+        IntegrationLog.Description := CopyStr(Context, 1, MaxStrLen(IntegrationLog."Description"));
         IntegrationLog."Error Message" := CopyStr(ErrorText, 1, MaxStrLen(IntegrationLog."Error Message"));
         IntegrationLog.Insert(true);
     end;
@@ -233,6 +239,8 @@
                     TotalFromObject := JsonToken.AsObject();
                     GLAccountMapping."Total From Account" := CopyStr(GetJsonToken(TotalFromObject, 'accountNumber').AsValue().AsText(), 1, MaxStrLen(GLAccountMapping."Total From Account"));
                     GLAccountMapping.Indentation := 1;
+                end else begin
+                    GLAccountMapping.Indentation := 0;
                 end;
 
                 // Handle VAT Account if present
@@ -247,6 +255,9 @@
             end;
             AccountCount += 1;
         end;
+
+        // Update indentation for all accounts after import
+        UpdateAccountIndentation();
 
         Message(AccountsFetchedMsg, AccountCount);
     end;
@@ -407,9 +418,11 @@
         OutStream: OutStream;
     begin
         IntegrationLog.Init();
+        IntegrationLog."Entry No." := GetNextLogEntryNo();
         IntegrationLog."Log Timestamp" := CurrentDateTime;
         IntegrationLog.Operation := CopyStr(Operation, 1, MaxStrLen(IntegrationLog.Operation));
         IntegrationLog."Status Code" := 0;
+        IntegrationLog."Event Type" := IntegrationLog."Event Type"::Error;
         IntegrationLog.Description := 'Setup Error';
         IntegrationLog."Error Message" := CopyStr(ErrorText, 1, MaxStrLen(IntegrationLog."Error Message"));
         IntegrationLog."Request URL" := '';
@@ -680,7 +693,121 @@
 
         exit(Distance[2, Length2]);
     end;
-    #endregion
+
+    local procedure UpdateAccountIndentation()
+    var
+        GLAccountMapping: Record "Economic GL Account Mapping";
+    begin
+        GLAccountMapping.SetCurrentKey("Economic Account No.");
+        if GLAccountMapping.FindSet() then
+            repeat
+                GLAccountMapping.Indentation := CalculateAccountIndentation(GLAccountMapping."Economic Account No.");
+                GLAccountMapping.Modify();
+            until GLAccountMapping.Next() = 0;
+    end;
+
+    local procedure CalculateAccountIndentation(AccountNo: Code[20]): Integer
+    var
+        GLAccountMapping: Record "Economic GL Account Mapping";
+        ParentAccountNo: Code[20];
+        IndentLevel: Integer;
+    begin
+        if not GLAccountMapping.Get(AccountNo) then
+            exit(0);
+
+        if GLAccountMapping."Total From Account" = '' then
+            exit(0);
+
+        ParentAccountNo := GLAccountMapping."Total From Account";
+        IndentLevel := 1;
+
+        // Check for deeper nesting (up to 5 levels to prevent infinite loops)
+        while (ParentAccountNo <> '') and (IndentLevel < 5) do begin
+            if GLAccountMapping.Get(ParentAccountNo) then begin
+                if GLAccountMapping."Total From Account" <> '' then begin
+                    ParentAccountNo := GLAccountMapping."Total From Account";
+                    IndentLevel += 1;
+                end else
+                    ParentAccountNo := '';
+            end else
+                ParentAccountNo := '';
+        end;
+
+        exit(IndentLevel);
+    end;
+
+    /// <summary>
+    /// Creates G/L Accounts in Business Central from the mapped e-conomic accounts
+    /// </summary>
+    procedure CreateGLAccountsFromMapping()
+    var
+        GLAccountMapping: Record "Economic GL Account Mapping";
+        GLAccount: Record "G/L Account";
+        GLSetup: Record "General Ledger Setup";
+        Counter: Integer;
+        SkippedCounter: Integer;
+    begin
+        GLSetup.Get();
+        
+        GLAccountMapping.SetCurrentKey("Economic Account No.");
+        if GLAccountMapping.FindSet() then
+            repeat
+                if GLAccountMapping."BC Account No." <> '' then begin
+                    if not GLAccount.Get(GLAccountMapping."BC Account No.") then begin
+                        GLAccount.Init();
+                        GLAccount."No." := GLAccountMapping."BC Account No.";
+                        GLAccount.Name := GLAccountMapping."Economic Account Name";
+                        
+                        // Map account types
+                        case GLAccountMapping."Account Type" of
+                            GLAccountMapping."Account Type"::heading,
+                            GLAccountMapping."Account Type"::headingStart:
+                                GLAccount."Account Type" := GLAccount."Account Type"::Heading;
+                            GLAccountMapping."Account Type"::totalFrom:
+                                GLAccount."Account Type" := GLAccount."Account Type"::Total;
+                            GLAccountMapping."Account Type"::profitAndLoss:
+                                GLAccount."Account Type" := GLAccount."Account Type"::Posting;
+                            GLAccountMapping."Account Type"::status:
+                                GLAccount."Account Type" := GLAccount."Account Type"::Posting;
+                            else
+                                GLAccount."Account Type" := GLAccount."Account Type"::Posting;
+                        end;
+
+                        // Set income/balance type based on account type
+                        if GLAccountMapping."Account Type" in [GLAccountMapping."Account Type"::profitAndLoss] then
+                            GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Income Statement"
+                        else
+                            GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet";
+
+                        // Set debit/credit based on the economic account
+                        if GLAccountMapping."Debit Credit" = 'credit' then
+                            GLAccount."Debit/Credit" := GLAccount."Debit/Credit"::Credit
+                        else
+                            GLAccount."Debit/Credit" := GLAccount."Debit/Credit"::Debit;
+
+                        // Set totaling for total accounts
+                        if GLAccountMapping."Account Type" = GLAccountMapping."Account Type"::totalFrom then
+                            if GLAccountMapping."Total From Account" <> '' then
+                                GLAccount.Totaling := GLAccountMapping."Total From Account";
+
+                        // Set blocked if direct entries are blocked
+                        GLAccount."Direct Posting" := not GLAccountMapping."Block Direct Entries";
+
+                        // Set indentation
+                        GLAccount.Indentation := GLAccountMapping.Indentation;
+
+                        GLAccount.Insert(true);
+                        Counter += 1;
+                    end else begin
+                        SkippedCounter += 1;
+                    end;
+                end else begin
+                    SkippedCounter += 1;
+                end;
+            until GLAccountMapping.Next() = 0;
+
+        Message('G/L Account creation completed.\Created: %1\Skipped (already exists or no BC Account No.): %2', Counter, SkippedCounter);
+    end;
 
     local procedure GetNextLogEntryNo(): Integer
     var
@@ -691,6 +818,7 @@
         else
             exit(1);
     end;
+    #endregion
 
     /// <summary>
     /// Gets all customers from e-conomic and creates/updates mappings.

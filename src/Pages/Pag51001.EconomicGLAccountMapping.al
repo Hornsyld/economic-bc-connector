@@ -44,7 +44,6 @@ page 51001 "Economic GL Account Mapping"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the account that this account totals from';
                     StyleExpr = AccountStyleTxt;
-                    Visible = ShowTotalFromField;
                 }
                 field("BC Account No."; Rec."BC Account No.")
                 {
@@ -114,13 +113,31 @@ page 51001 "Economic GL Account Mapping"
                     CreateGeneralJournalEntries();
                 end;
             }
+
+            action(CreateGLAccounts)
+            {
+                ApplicationArea = All;
+                Caption = 'Create G/L Accounts';
+                Image = NewChartOfAccounts;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'Create Business Central G/L Accounts from the mapped e-conomic accounts';
+
+                trigger OnAction()
+                var
+                    EconomicManagement: Codeunit "Economic Management";
+                begin
+                    if Confirm('Do you want to create G/L Accounts in Business Central from the mapped e-conomic accounts?\This will create actual G/L Account records based on the mapping information.') then
+                        EconomicManagement.CreateGLAccountsFromMapping();
+                end;
+            }
         }
     }
 
     var
         StatusStyleTxt: Text;
         AccountStyleTxt: Text;
-        ShowTotalFromField: Boolean;
 
     trigger OnAfterGetRecord()
     begin
@@ -148,9 +165,6 @@ page 51001 "Economic GL Account Mapping"
             else
                 AccountStyleTxt := 'Standard';
         end;
-
-        // Show Total From field for accounts that use it
-        ShowTotalFromField := Rec."Total From Account" <> '';
 
         // Override style for blocked accounts
         if Rec."Block Direct Entries" then
