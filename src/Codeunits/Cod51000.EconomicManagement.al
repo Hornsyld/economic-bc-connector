@@ -125,29 +125,6 @@ codeunit 51000 "Economic Management"
         end;
     end;
 
-    procedure SuggestCustomerNo(): Code[20]
-    var
-        Customer: Record Customer;
-        NoSeries: Codeunit "No. Series";
-        SalesSetup: Record "Sales & Receivables Setup";
-        CustomerNo: Integer;
-        TempText: Text;
-    begin
-        SalesSetup.Get();
-        if SalesSetup."Customer Nos." <> '' then
-            exit(NoSeries.GetNextNo(SalesSetup."Customer Nos.", Today()));
-
-        // Fallback: Generate a simple number
-        if Customer.FindLast() then begin
-            TempText := Customer."No.";
-            if Evaluate(CustomerNo, TempText) then
-                exit(Format(CustomerNo + 1))
-            else
-                exit('CUST0001');
-        end else
-            exit('CUST0001');
-    end;
-
     // Setup and Validation Methods
     local procedure InitializeConnection() Success: Boolean
     begin
@@ -265,12 +242,6 @@ codeunit 51000 "Economic Management"
     begin
         Logger.LogSuccess('CreateGLAccountsFromMapping', 'GL Account mapping functionality available for implementation');
         Message('GL Account mapping functionality is available for implementation.');
-    end;
-
-    procedure SyncCustomer(CustomerNo: Code[20])
-    begin
-        Logger.LogSuccess('SyncCustomer', StrSubstNo('Customer sync requested for %1', CustomerNo));
-        Message('Customer sync functionality is available for implementation.');
     end;
 
     procedure SyncVendor(VendorNo: Code[20])

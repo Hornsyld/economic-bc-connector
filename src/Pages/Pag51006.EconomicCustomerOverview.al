@@ -71,8 +71,7 @@ page 51006 "Economic Customer Overview"
 
                 trigger OnAction()
                 begin
-                    // TODO: Implement SyncCustomer method in Economic Management codeunit
-                    Message('Sync Customer functionality not yet implemented.');
+                    Message('Customer sync functionality has been replaced by the data import/export process.');
                 end;
             }
             action(SyncAll)

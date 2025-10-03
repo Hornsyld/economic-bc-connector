@@ -181,22 +181,6 @@ page 51010 "Economic Customer Mapping"
                     CreateAllUnsyncedCustomers();
                 end;
             }
-            action(SyncCustomer)
-            {
-                ApplicationArea = All;
-                Caption = 'Sync Customer';
-                Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                ToolTip = 'Synchronizes the selected customer with e-conomic.';
-
-                trigger OnAction()
-                var
-                    EconomicMgt: Codeunit "Economic Management";
-                begin
-                    EconomicMgt.SyncCustomer(Rec."Customer No.");
-                end;
-            }
         }
     }
 
@@ -264,15 +248,10 @@ page 51010 "Economic Customer Mapping"
         CountryMapping: Record "Economic Country Mapping";
         NewCustomerNo: Code[20];
     begin
-        // If no BC customer number assigned, suggest one
-        if EconomicCustomerMapping."Customer No." = '' then begin
-            NewCustomerNo := EconomicCustomerMapping.SuggestCustomerNo();
-            if NewCustomerNo = '' then
-                exit(false);
-            EconomicCustomerMapping."Customer No." := NewCustomerNo;
-        end else begin
-            NewCustomerNo := EconomicCustomerMapping."Customer No.";
-        end;
+        // The Customer No. field already contains the e-conomic customer number
+        NewCustomerNo := EconomicCustomerMapping."Customer No.";
+        if NewCustomerNo = '' then
+            exit(false); // Should not happen since we set this during API import
 
         // Check if customer already exists
         if Customer.Get(NewCustomerNo) then begin

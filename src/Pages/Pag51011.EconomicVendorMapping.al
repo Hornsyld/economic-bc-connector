@@ -22,15 +22,25 @@ page 51011 "Economic Vendor Mapping"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the vendor.';
                 }
-                field("Economic Vendor Id"; Rec."Economic Vendor Id")
+                field("Email"; Rec."Email")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the vendor ID in e-conomic.';
+                    ToolTip = 'Specifies the vendor email address.';
                 }
-                field("Economic Vendor Number"; Rec."Economic Vendor Number")
+                field("Phone"; Rec."Phone")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the vendor number in e-conomic.';
+                    ToolTip = 'Specifies the vendor phone number.';
+                }
+                field("City"; Rec."City")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the vendor city.';
+                }
+                field("Currency Code"; Rec."Currency Code")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the vendor currency code.';
                 }
                 field("Last Sync DateTime"; Rec."Last Sync DateTime")
                 {
@@ -146,17 +156,14 @@ page 51011 "Economic Vendor Mapping"
     local procedure CreateSingleVendor(var EconomicVendorMapping: Record "Economic Vendor Mapping"): Boolean
     var
         Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
         NewVendorNo: Code[20];
+        BankAccountCode: Code[20];
     begin
-        // If no BC vendor number assigned, suggest one
-        if EconomicVendorMapping."Vendor No." = '' then begin
-            NewVendorNo := EconomicVendorMapping.SuggestVendorNo();
-            if NewVendorNo = '' then
-                exit(false);
-            EconomicVendorMapping."Vendor No." := NewVendorNo;
-        end else begin
-            NewVendorNo := EconomicVendorMapping."Vendor No.";
-        end;
+        // The Vendor No. field already contains the e-conomic vendor number
+        NewVendorNo := EconomicVendorMapping."Vendor No.";
+        if NewVendorNo = '' then
+            exit(false); // Should not happen since we set this during API import
 
         // Check if vendor already exists
         if Vendor.Get(NewVendorNo) then begin
@@ -167,12 +174,60 @@ page 51011 "Economic Vendor Mapping"
             exit(false);
         end;
 
-        // Create new vendor
+        // Create new vendor with rich data from e-conomic
         Vendor.Init();
         Vendor."No." := NewVendorNo;
-        Vendor.Name := CopyStr(StrSubstNo('e-conomic Vendor %1', EconomicVendorMapping."Economic Vendor Number"), 1, MaxStrLen(Vendor.Name));
+
+        // Use vendor name from the Vendor Name field if available, otherwise use vendor number
+        if EconomicVendorMapping."Vendor Name" <> '' then
+            Vendor.Name := CopyStr(EconomicVendorMapping."Vendor Name", 1, MaxStrLen(Vendor.Name))
+        else
+            Vendor.Name := CopyStr(StrSubstNo('e-conomic Vendor %1', EconomicVendorMapping."Vendor No."), 1, MaxStrLen(Vendor.Name));
+
+        // Map contact information
+        if EconomicVendorMapping."Email" <> '' then
+            Vendor."E-Mail" := CopyStr(EconomicVendorMapping."Email", 1, MaxStrLen(Vendor."E-Mail"));
+        if EconomicVendorMapping."Phone" <> '' then
+            Vendor."Phone No." := CopyStr(EconomicVendorMapping."Phone", 1, MaxStrLen(Vendor."Phone No."));
+
+        // Map address information
+        if EconomicVendorMapping."Address" <> '' then
+            Vendor.Address := CopyStr(EconomicVendorMapping."Address", 1, MaxStrLen(Vendor.Address));
+        if EconomicVendorMapping."City" <> '' then
+            Vendor.City := CopyStr(EconomicVendorMapping."City", 1, MaxStrLen(Vendor.City));
+        if EconomicVendorMapping."Post Code" <> '' then
+            Vendor."Post Code" := CopyStr(EconomicVendorMapping."Post Code", 1, MaxStrLen(Vendor."Post Code"));
+        if EconomicVendorMapping."Country" <> '' then
+            Vendor."Country/Region Code" := CopyStr(EconomicVendorMapping."Country", 1, MaxStrLen(Vendor."Country/Region Code"));
+
+        // Map financial information
+        if EconomicVendorMapping."Currency Code" <> '' then
+            Vendor."Currency Code" := CopyStr(EconomicVendorMapping."Currency Code", 1, MaxStrLen(Vendor."Currency Code"));
+        if EconomicVendorMapping."Corporate ID Number" <> '' then
+            Vendor."VAT Registration No." := CopyStr(EconomicVendorMapping."Corporate ID Number", 1, MaxStrLen(Vendor."VAT Registration No."));
 
         Vendor.Insert(true);
+
+        // Create Vendor Bank Account if bank account information is available
+        if EconomicVendorMapping."Bank Account" <> '' then begin
+            // Use a simple code for the bank account (could be enhanced with more logic)
+            BankAccountCode := 'MAIN';
+
+            // Check if bank account already exists
+            if not VendorBankAccount.Get(NewVendorNo, BankAccountCode) then begin
+                VendorBankAccount.Init();
+                VendorBankAccount."Vendor No." := NewVendorNo;
+                VendorBankAccount.Code := BankAccountCode;
+                VendorBankAccount.Name := CopyStr(StrSubstNo('%1 - Main Account', Vendor.Name), 1, MaxStrLen(VendorBankAccount.Name));
+                VendorBankAccount."Bank Account No." := CopyStr(EconomicVendorMapping."Bank Account", 1, MaxStrLen(VendorBankAccount."Bank Account No."));
+
+                VendorBankAccount.Insert(true);
+
+                // Update vendor to use this as the preferred bank account
+                Vendor."Preferred Bank Account Code" := BankAccountCode;
+                Vendor.Modify(true);
+            end;
+        end;
 
         // Update sync status to mark as successfully created
         EconomicVendorMapping."Sync Status" := EconomicVendorMapping."Sync Status"::Synced;

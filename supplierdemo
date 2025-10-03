@@ -1,0 +1,194 @@
+{
+  "collection": [
+    {
+      "supplierNumber": 1,
+      "name": "Jenkins & Co",
+      "currency": "DKK",
+      "paymentTerms": {
+        "paymentTermsNumber": 9,
+        "self": "https://restapi.e-conomic.com/payment-terms/9?demo=true"
+      },
+      "vatZone": {
+        "vatZoneNumber": 1,
+        "self": "https://restapi.e-conomic.com/vat-zones/1?demo=true"
+      },
+      "supplierGroup": {
+        "supplierGroupNumber": 1,
+        "self": "https://restapi.e-conomic.com/supplier-groups/1?demo=true"
+      },
+      "email": "supplier1@mailinator.com",
+      "address": "Avenue des Arts No 5",
+      "zip": "1212",
+      "city": "Brussels",
+      "country": "belgium",
+      "phone": "075465474846",
+      "bankAccount": "547467468443325",
+      "attention": {
+        "number": 10,
+        "self": "https://restapi.e-conomic.com/suppliers/1/contacts/10?demo=true"
+      },
+      "supplierContact": {
+        "number": 9,
+        "self": "https://restapi.e-conomic.com/suppliers/1/contacts/9?demo=true"
+      },
+      "salesPerson": {
+        "employeeNumber": 6,
+        "self": "https://restapi.e-conomic.com/employees/6?demo=true"
+      },
+      "contacts": "https://restapi.e-conomic.com/suppliers/1/contacts?demo=true",
+      "layout": {
+        "layoutNumber": 21,
+        "self": "https://restapi.e-conomic.com/layouts/21?demo=true"
+      },
+      "remittanceAdvice": {
+        "paymentType": {
+          "paymentTypeNumber": 14,
+          "self": "https://restapi.e-conomic.com/payment-types/14?demo=true"
+        }
+      },
+      "costAccount": {
+        "accountNumber": 1026,
+        "self": "https://restapi.e-conomic.com/accounts/1026?demo=true"
+      },
+      "metaData": {
+        "delete": {
+          "description": "Delete this supplier.",
+          "href": "https://restapi.e-conomic.com/suppliers/1",
+          "httpMethod": "delete"
+        }
+      },
+      "self": "https://restapi.e-conomic.com/suppliers/1?demo=true"
+    },
+    {
+      "supplierNumber": 2,
+      "name": "Manson Brothers Ltd",
+      "currency": "DKK",
+      "paymentTerms": {
+        "paymentTermsNumber": 9,
+        "self": "https://restapi.e-conomic.com/payment-terms/9?demo=true"
+      },
+      "vatZone": {
+        "vatZoneNumber": 1,
+        "self": "https://restapi.e-conomic.com/vat-zones/1?demo=true"
+      },
+      "supplierGroup": {
+        "supplierGroupNumber": 1,
+        "self": "https://restapi.e-conomic.com/supplier-groups/1?demo=true"
+      },
+      "email": "mansonb@mailinator.com",
+      "address": "Oak Street No 2",
+      "zip": "21212",
+      "city": "Copenhagen",
+      "country": "Denmark",
+      "phone": "07657547457",
+      "bankAccount": "765858579799",
+      "attention": {
+        "number": 11,
+        "self": "https://restapi.e-conomic.com/suppliers/2/contacts/11?demo=true"
+      },
+      "supplierContact": {
+        "number": 12,
+        "self": "https://restapi.e-conomic.com/suppliers/2/contacts/12?demo=true"
+      },
+      "salesPerson": {
+        "employeeNumber": 5,
+        "self": "https://restapi.e-conomic.com/employees/5?demo=true"
+      },
+      "contacts": "https://restapi.e-conomic.com/suppliers/2/contacts?demo=true",
+      "layout": {
+        "layoutNumber": 21,
+        "self": "https://restapi.e-conomic.com/layouts/21?demo=true"
+      },
+      "remittanceAdvice": {
+        "paymentType": {
+          "paymentTypeNumber": 1,
+          "self": "https://restapi.e-conomic.com/payment-types/1?demo=true"
+        },
+        "creditorId": "2"
+      },
+      "costAccount": {
+        "accountNumber": 2210,
+        "self": "https://restapi.e-conomic.com/accounts/2210?demo=true"
+      },
+      "metaData": {
+        "delete": {
+          "description": "Delete this supplier.",
+          "href": "https://restapi.e-conomic.com/suppliers/2",
+          "httpMethod": "delete"
+        }
+      },
+      "self": "https://restapi.e-conomic.com/suppliers/2?demo=true"
+    },
+    {
+      "supplierNumber": 3,
+      "name": "European Supplier",
+      "currency": "EUR",
+      "paymentTerms": {
+        "paymentTermsNumber": 9,
+        "self": "https://restapi.e-conomic.com/payment-terms/9?demo=true"
+      },
+      "vatZone": {
+        "vatZoneNumber": 2,
+        "self": "https://restapi.e-conomic.com/vat-zones/2?demo=true"
+      },
+      "supplierGroup": {
+        "supplierGroupNumber": 2,
+        "self": "https://restapi.e-conomic.com/supplier-groups/2?demo=true"
+      },
+      "email": "europeans@mailinator.com",
+      "address": "Avenue Louise 7",
+      "zip": "1212",
+      "city": "Brussels",
+      "country": "Belgium",
+      "phone": "0756768486",
+      "bankAccount": "65474684669",
+      "defaultInvoiceText": "Greetings from European Supplier",
+      "attention": {
+        "number": 13,
+        "self": "https://restapi.e-conomic.com/suppliers/3/contacts/13?demo=true"
+      },
+      "supplierContact": {
+        "number": 14,
+        "self": "https://restapi.e-conomic.com/suppliers/3/contacts/14?demo=true"
+      },
+      "salesPerson": {
+        "employeeNumber": 2,
+        "self": "https://restapi.e-conomic.com/employees/2?demo=true"
+      },
+      "contacts": "https://restapi.e-conomic.com/suppliers/3/contacts?demo=true",
+      "layout": {
+        "layoutNumber": 21,
+        "self": "https://restapi.e-conomic.com/layouts/21?demo=true"
+      },
+      "remittanceAdvice": {
+        "paymentType": {
+          "paymentTypeNumber": 17,
+          "self": "https://restapi.e-conomic.com/payment-types/17?demo=true"
+        },
+        "creditorId": "3"
+      },
+      "costAccount": {
+        "accountNumber": 1025,
+        "self": "https://restapi.e-conomic.com/accounts/1025?demo=true"
+      },
+      "metaData": {
+        "delete": {
+          "description": "Delete this supplier.",
+          "href": "https://restapi.e-conomic.com/suppliers/3",
+          "httpMethod": "delete"
+        }
+      },
+      "self": "https://restapi.e-conomic.com/suppliers/3?demo=true"
+    }
+  ],
+  "pagination": {
+    "skipPages": 0,
+    "pageSize": 20,
+    "maxPageSizeAllowed": 1000,
+    "results": 3,
+    "resultsWithoutFilter": 3,
+    "firstPage": "https://restapi.e-conomic.com/suppliers?demo=true&skippages=0&pagesize=20",
+    "lastPage": "https://restapi.e-conomic.com/suppliers?demo=true&skippages=0&pagesize=20"
+  },
+  "self": "https://restapi.e-conomic.com/suppliers?demo=true"
+}

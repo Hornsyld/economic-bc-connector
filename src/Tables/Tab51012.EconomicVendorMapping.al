@@ -13,18 +13,6 @@ table 51012 "Economic Vendor Mapping"
         field(2; "Vendor Name"; Text[100])
         {
             Caption = 'Vendor Name';
-            FieldClass = FlowField;
-            CalcFormula = lookup(Vendor.Name where("No." = field("Vendor No.")));
-            Editable = false;
-        }
-        field(3; "Economic Vendor Id"; Integer)
-        {
-            Caption = 'Economic Vendor Id';
-            DataClassification = CustomerContent;
-        }
-        field(4; "Economic Vendor Number"; Text[50])
-        {
-            Caption = 'Economic Vendor Number';
             DataClassification = CustomerContent;
         }
         field(5; "Last Sync DateTime"; DateTime)
@@ -39,6 +27,119 @@ table 51012 "Economic Vendor Mapping"
             DataClassification = CustomerContent;
             Editable = false;
         }
+        // Contact Information
+        field(10; "Email"; Text[250])
+        {
+            Caption = 'Email';
+            DataClassification = CustomerContent;
+            ExtendedDatatype = EMail;
+        }
+        field(11; "Phone"; Text[30])
+        {
+            Caption = 'Phone';
+            DataClassification = CustomerContent;
+            ExtendedDatatype = PhoneNo;
+        }
+        // Address Information
+        field(20; "Address"; Text[100])
+        {
+            Caption = 'Address';
+            DataClassification = CustomerContent;
+        }
+        field(21; "City"; Text[50])
+        {
+            Caption = 'City';
+            DataClassification = CustomerContent;
+        }
+        field(22; "Post Code"; Code[20])
+        {
+            Caption = 'Post Code';
+            DataClassification = CustomerContent;
+        }
+        field(23; "Country"; Text[50])
+        {
+            Caption = 'Country';
+            DataClassification = CustomerContent;
+        }
+        // Financial Information
+        field(30; "Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
+            DataClassification = CustomerContent;
+        }
+        field(31; "Bank Account"; Text[50])
+        {
+            Caption = 'Bank Account';
+            DataClassification = CustomerContent;
+        }
+        field(32; "Payment Terms Number"; Integer)
+        {
+            Caption = 'Payment Terms Number';
+            DataClassification = CustomerContent;
+        }
+        field(33; "VAT Zone Number"; Integer)
+        {
+            Caption = 'VAT Zone Number';
+            DataClassification = CustomerContent;
+        }
+        field(34; "Supplier Group Number"; Integer)
+        {
+            Caption = 'Supplier Group Number';
+            DataClassification = CustomerContent;
+        }
+        field(35; "Corporate ID Number"; Text[40])
+        {
+            Caption = 'Corporate ID Number';
+            DataClassification = CustomerContent;
+        }
+        // Business Information
+        field(40; "Default Invoice Text"; Text[100])
+        {
+            Caption = 'Default Invoice Text';
+            DataClassification = CustomerContent;
+        }
+        field(41; "Barred"; Boolean)
+        {
+            Caption = 'Barred';
+            DataClassification = CustomerContent;
+        }
+        field(42; "Layout Number"; Integer)
+        {
+            Caption = 'Layout Number';
+            DataClassification = CustomerContent;
+        }
+        // Contact References
+        field(50; "Attention Contact Number"; Integer)
+        {
+            Caption = 'Attention Contact Number';
+            DataClassification = CustomerContent;
+        }
+        field(51; "Supplier Contact Number"; Integer)
+        {
+            Caption = 'Supplier Contact Number';
+            DataClassification = CustomerContent;
+        }
+        field(52; "Sales Person Employee Number"; Integer)
+        {
+            Caption = 'Sales Person Employee Number';
+            DataClassification = CustomerContent;
+        }
+        field(53; "Cost Account Number"; Integer)
+        {
+            Caption = 'Cost Account Number';
+            DataClassification = CustomerContent;
+        }
+        // Payment Information
+        field(60; "Payment Type Number"; Integer)
+        {
+            Caption = 'Payment Type Number';
+            DataClassification = CustomerContent;
+        }
+        field(61; "Creditor ID"; Text[50])
+        {
+            Caption = 'Creditor ID';
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
@@ -47,14 +148,14 @@ table 51012 "Economic Vendor Mapping"
         {
             Clustered = true;
         }
-        key(Economic; "Economic Vendor Id")
-        {
-        }
     }
 
     fieldgroups
     {
-        fieldgroup(DropDown; "Vendor No.", "Vendor Name", "Economic Vendor Number", "Last Sync DateTime")
+        fieldgroup(DropDown; "Vendor No.", "Vendor Name", "Email", "City")
+        {
+        }
+        fieldgroup(Brick; "Vendor No.", "Vendor Name", "Currency Code", "Last Sync DateTime")
         {
         }
     }
@@ -67,29 +168,5 @@ table 51012 "Economic Vendor Mapping"
     trigger OnModify()
     begin
         "Last Sync DateTime" := CurrentDateTime;
-    end;
-
-    procedure SuggestVendorNo(): Code[20]
-    var
-        Vendor: Record Vendor;
-        SuggestedNo: Code[20];
-        Counter: Integer;
-    begin
-        // Try using economic vendor number first
-        if "Economic Vendor Number" <> '' then begin
-            SuggestedNo := CopyStr("Economic Vendor Number", 1, 20);
-            if not Vendor.Get(SuggestedNo) then
-                exit(SuggestedNo);
-        end;
-
-        // Generate numbered suggestions
-        SuggestedNo := CopyStr(StrSubstNo('VEND%1', "Economic Vendor Id"), 1, 20);
-        Counter := 1;
-        while Vendor.Get(SuggestedNo) do begin
-            Counter += 1;
-            SuggestedNo := CopyStr(StrSubstNo('VEND%1-%2', "Economic Vendor Id", Counter), 1, 20);
-        end;
-
-        exit(SuggestedNo);
     end;
 }

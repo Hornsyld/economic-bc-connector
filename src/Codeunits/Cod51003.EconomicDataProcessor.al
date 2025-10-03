@@ -171,8 +171,8 @@ codeunit 51003 "Economic Data Processor"
     begin
         Success := false;
 
-        if CustomerMapping."Economic Customer Id" = 0 then begin
-            Logger.LogError(Enum::"Economic Request Type"::Customer, 'Economic Customer Id is required', 'CreateCustomerFromMapping');
+        if CustomerMapping."Customer No." = '' then begin
+            Logger.LogError(Enum::"Economic Request Type"::Customer, 'Customer No. is required', 'CreateCustomerFromMapping');
             exit(false);
         end;
 
@@ -184,10 +184,8 @@ codeunit 51003 "Economic Data Processor"
             exit(true);
         end;
 
-        // Generate customer number if needed
+        // The Customer No. field already contains the e-conomic customer number
         CustomerNo := CustomerMapping."Customer No.";
-        if CustomerNo = '' then
-            CustomerNo := CustomerMapping.SuggestCustomerNo();
 
         // Create new customer
         Customer.Init();
@@ -210,7 +208,7 @@ codeunit 51003 "Economic Data Processor"
         CustomerMapping."Sync Status" := CustomerMapping."Sync Status"::Synced;
         CustomerMapping.Modify(true);
 
-        Logger.LogSuccess('CreateCustomerFromMapping', StrSubstNo('Customer %1 created successfully from Economic Customer Id %2', Customer."No.", CustomerMapping."Economic Customer Id"));
+        Logger.LogSuccess('CreateCustomerFromMapping', StrSubstNo('Customer %1 created successfully from Economic Customer Number %2', Customer."No.", CustomerMapping."Economic Customer Number"));
         Success := true;
     end;
 
@@ -248,31 +246,35 @@ codeunit 51003 "Economic Data Processor"
 
     local procedure ProcessSingleCustomer(CustomerObject: JsonObject; var EconomicCustomerMapping: Record "Economic Customer Mapping") Success: Boolean
     var
-        EconomicCustomerId: Integer;
+        EconomicCustomerNumber: Text;
+        CustomerNo: Code[20];
     begin
         Success := false;
 
-        // Get Economic Customer ID
-        EconomicCustomerId := GetJsonValueAsInteger(CustomerObject, 'customerNumber');
-        if EconomicCustomerId = 0 then begin
+        // Get Economic Customer Number from JSON - this will be our primary key
+        EconomicCustomerNumber := GetJsonValueAsText(CustomerObject, 'customerNumber');
+        if EconomicCustomerNumber = '' then begin
             Logger.LogError(Enum::"Economic Request Type"::Customer, 'customerNumber not found or invalid in customer object', 'ProcessSingleCustomer');
             exit(false);
         end;
 
-        // Initialize or get existing mapping record
-        if not EconomicCustomerMapping.Get(EconomicCustomerId) then begin
+        // Convert to Code[20] for use as primary key
+        CustomerNo := CopyStr(EconomicCustomerNumber, 1, 20);
+
+        // Initialize or get existing mapping record using Customer No. as primary key
+        if not EconomicCustomerMapping.Get(CustomerNo) then begin
             EconomicCustomerMapping.Init();
-            EconomicCustomerMapping."Economic Customer Id" := EconomicCustomerId;
+            EconomicCustomerMapping."Customer No." := CustomerNo;
         end;
 
-        // Map all available fields
+        // Map all available fields (including storing the customer number)
         MapCustomerFields(CustomerObject, EconomicCustomerMapping);
 
         // Set sync status
         EconomicCustomerMapping."Sync Status" := EconomicCustomerMapping."Sync Status"::New;
 
         // Insert or modify record
-        if EconomicCustomerMapping."Economic Customer Id" <> 0 then begin
+        if EconomicCustomerMapping."Customer No." <> '' then begin
             if not EconomicCustomerMapping.Insert(true) then
                 EconomicCustomerMapping.Modify(true);
             Success := true;
@@ -281,31 +283,35 @@ codeunit 51003 "Economic Data Processor"
 
     local procedure ProcessSingleVendor(VendorObject: JsonObject; var EconomicVendorMapping: Record "Economic Vendor Mapping") Success: Boolean
     var
-        EconomicVendorId: Integer;
+        EconomicVendorNumber: Text;
+        VendorNo: Code[20];
     begin
         Success := false;
 
-        // Get Economic Vendor ID
-        EconomicVendorId := GetJsonValueAsInteger(VendorObject, 'supplierNumber');
-        if EconomicVendorId = 0 then begin
+        // Get Economic Vendor Number from JSON - this will be our primary key
+        EconomicVendorNumber := GetJsonValueAsText(VendorObject, 'supplierNumber');
+        if EconomicVendorNumber = '' then begin
             Logger.LogError(Enum::"Economic Request Type"::Vendor, 'supplierNumber not found or invalid in vendor object', 'ProcessSingleVendor');
             exit(false);
         end;
 
-        // Initialize or get existing mapping record
-        if not EconomicVendorMapping.Get(EconomicVendorId) then begin
+        // Convert to Code[20] for use as primary key
+        VendorNo := CopyStr(EconomicVendorNumber, 1, 20);
+
+        // Initialize or get existing mapping record using Vendor No. as primary key
+        if not EconomicVendorMapping.Get(VendorNo) then begin
             EconomicVendorMapping.Init();
-            EconomicVendorMapping."Economic Vendor Id" := EconomicVendorId;
+            EconomicVendorMapping."Vendor No." := VendorNo;
         end;
 
-        // Map all available fields
+        // Map all available fields (including storing the vendor number)
         MapVendorFields(VendorObject, EconomicVendorMapping);
 
         // Set sync status
         EconomicVendorMapping."Sync Status" := EconomicVendorMapping."Sync Status"::New;
 
         // Insert or modify record
-        if EconomicVendorMapping."Economic Vendor Id" <> 0 then begin
+        if EconomicVendorMapping."Vendor No." <> '' then begin
             if not EconomicVendorMapping.Insert(true) then
                 EconomicVendorMapping.Modify(true);
             Success := true;
@@ -314,6 +320,9 @@ codeunit 51003 "Economic Data Processor"
 
     local procedure MapCustomerFields(CustomerObject: JsonObject; var CustomerMapping: Record "Economic Customer Mapping")
     begin
+        // Map the customer number from e-conomic
+        CustomerMapping."Economic Customer Number" := CopyStr(GetJsonValueAsText(CustomerObject, 'customerNumber'), 1, MaxStrLen(CustomerMapping."Economic Customer Number"));
+        
         // Basic information using correct field names
         CustomerMapping."Economic Customer Name" := CopyStr(GetJsonValueAsText(CustomerObject, 'name'), 1, MaxStrLen(CustomerMapping."Economic Customer Name"));
         CustomerMapping."Economic Corporate ID" := CopyStr(GetJsonValueAsText(CustomerObject, 'corporateIdentificationNumber'), 1, MaxStrLen(CustomerMapping."Economic Corporate ID"));
@@ -336,10 +345,75 @@ codeunit 51003 "Economic Data Processor"
     end;
 
     local procedure MapVendorFields(VendorObject: JsonObject; var VendorMapping: Record "Economic Vendor Mapping")
+    var
+        PaymentTermsObject: JsonObject;
+        VatZoneObject: JsonObject;
+        SupplierGroupObject: JsonObject;
+        AttentionObject: JsonObject;
+        SupplierContactObject: JsonObject;
+        SalesPersonObject: JsonObject;
+        LayoutObject: JsonObject;
+        CostAccountObject: JsonObject;
+        RemittanceAdviceObject: JsonObject;
+        PaymentTypeObject: JsonObject;
     begin
-        // Basic information - this would need the actual vendor mapping table structure
-        // For now, just log that vendor processing is available
-        Logger.LogSuccess('MapVendorFields', 'Vendor field mapping available for implementation');
+        // Map the vendor name from e-conomic
+        VendorMapping."Vendor Name" := CopyStr(GetJsonValueAsText(VendorObject, 'name'), 1, MaxStrLen(VendorMapping."Vendor Name"));
+        
+        // Core Information
+        VendorMapping."Email" := CopyStr(GetJsonValueAsText(VendorObject, 'email'), 1, MaxStrLen(VendorMapping."Email"));
+        VendorMapping."Phone" := CopyStr(GetJsonValueAsText(VendorObject, 'phone'), 1, MaxStrLen(VendorMapping."Phone"));
+        
+        // Address Information
+        VendorMapping."Address" := CopyStr(GetJsonValueAsText(VendorObject, 'address'), 1, MaxStrLen(VendorMapping."Address"));
+        VendorMapping."City" := CopyStr(GetJsonValueAsText(VendorObject, 'city'), 1, MaxStrLen(VendorMapping."City"));
+        VendorMapping."Post Code" := CopyStr(GetJsonValueAsText(VendorObject, 'zip'), 1, MaxStrLen(VendorMapping."Post Code"));
+        VendorMapping."Country" := CopyStr(GetJsonValueAsText(VendorObject, 'country'), 1, MaxStrLen(VendorMapping."Country"));
+        
+        // Financial Information
+        VendorMapping."Currency Code" := CopyStr(GetJsonValueAsText(VendorObject, 'currency'), 1, MaxStrLen(VendorMapping."Currency Code"));
+        VendorMapping."Bank Account" := CopyStr(GetJsonValueAsText(VendorObject, 'bankAccount'), 1, MaxStrLen(VendorMapping."Bank Account"));
+        VendorMapping."Corporate ID Number" := CopyStr(GetJsonValueAsText(VendorObject, 'corporateIdentificationNumber'), 1, MaxStrLen(VendorMapping."Corporate ID Number"));
+        
+        // Business Information
+        VendorMapping."Default Invoice Text" := CopyStr(GetJsonValueAsText(VendorObject, 'defaultInvoiceText'), 1, MaxStrLen(VendorMapping."Default Invoice Text"));
+        VendorMapping."Barred" := GetJsonValueAsBoolean(VendorObject, 'barred');
+        
+        // Extract numbers from nested objects
+        if GetJsonObjectValue(VendorObject, 'paymentTerms', PaymentTermsObject) then
+            VendorMapping."Payment Terms Number" := GetJsonValueAsInteger(PaymentTermsObject, 'paymentTermsNumber');
+            
+        if GetJsonObjectValue(VendorObject, 'vatZone', VatZoneObject) then
+            VendorMapping."VAT Zone Number" := GetJsonValueAsInteger(VatZoneObject, 'vatZoneNumber');
+            
+        if GetJsonObjectValue(VendorObject, 'supplierGroup', SupplierGroupObject) then
+            VendorMapping."Supplier Group Number" := GetJsonValueAsInteger(SupplierGroupObject, 'supplierGroupNumber');
+            
+        if GetJsonObjectValue(VendorObject, 'layout', LayoutObject) then
+            VendorMapping."Layout Number" := GetJsonValueAsInteger(LayoutObject, 'layoutNumber');
+            
+        if GetJsonObjectValue(VendorObject, 'costAccount', CostAccountObject) then
+            VendorMapping."Cost Account Number" := GetJsonValueAsInteger(CostAccountObject, 'accountNumber');
+        
+        // Contact References
+        if GetJsonObjectValue(VendorObject, 'attention', AttentionObject) then
+            VendorMapping."Attention Contact Number" := GetJsonValueAsInteger(AttentionObject, 'number');
+            
+        if GetJsonObjectValue(VendorObject, 'supplierContact', SupplierContactObject) then
+            VendorMapping."Supplier Contact Number" := GetJsonValueAsInteger(SupplierContactObject, 'number');
+            
+        if GetJsonObjectValue(VendorObject, 'salesPerson', SalesPersonObject) then
+            VendorMapping."Sales Person Employee Number" := GetJsonValueAsInteger(SalesPersonObject, 'employeeNumber');
+        
+        // Payment Information
+        if GetJsonObjectValue(VendorObject, 'remittanceAdvice', RemittanceAdviceObject) then begin
+            VendorMapping."Creditor ID" := CopyStr(GetJsonValueAsText(RemittanceAdviceObject, 'creditorId'), 1, MaxStrLen(VendorMapping."Creditor ID"));
+            if GetJsonObjectValue(RemittanceAdviceObject, 'paymentType', PaymentTypeObject) then
+                VendorMapping."Payment Type Number" := GetJsonValueAsInteger(PaymentTypeObject, 'paymentTypeNumber');
+        end;
+        
+        // Log successful mapping
+        Logger.LogSuccess('MapVendorFields', 'Vendor field mapping completed');
     end;
 
     local procedure GetJsonValueAsText(JsonObject: JsonObject; PropertyName: Text) PropertyValue: Text
@@ -370,6 +444,27 @@ codeunit 51003 "Economic Data Processor"
             PropertyValue := JsonToken.AsValue().AsDecimal()
         else
             PropertyValue := 0;
+    end;
+
+    local procedure GetJsonValueAsBoolean(JsonObject: JsonObject; PropertyName: Text) PropertyValue: Boolean
+    var
+        JsonToken: JsonToken;
+    begin
+        if JsonObject.Get(PropertyName, JsonToken) and JsonToken.IsValue() then
+            PropertyValue := JsonToken.AsValue().AsBoolean()
+        else
+            PropertyValue := false;
+    end;
+
+    local procedure GetJsonObjectValue(JsonObject: JsonObject; PropertyName: Text; var TargetObject: JsonObject): Boolean
+    var
+        JsonToken: JsonToken;
+    begin
+        if JsonObject.Get(PropertyName, JsonToken) and JsonToken.IsObject() then begin
+            TargetObject := JsonToken.AsObject();
+            exit(true);
+        end;
+        exit(false);
     end;
 
     local procedure GetCustomerDisplayName(CustomerObject: JsonObject) DisplayName: Text

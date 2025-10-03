@@ -17,11 +17,6 @@ table 51004 "Economic Customer Mapping"
             CalcFormula = lookup(Customer.Name where("No." = field("Customer No.")));
             Editable = false;
         }
-        field(3; "Economic Customer Id"; Integer)
-        {
-            Caption = 'Economic Customer Id';
-            DataClassification = CustomerContent;
-        }
         field(4; "Economic Customer Number"; Text[50])
         {
             Caption = 'Economic Customer Number';
@@ -133,12 +128,9 @@ table 51004 "Economic Customer Mapping"
 
     keys
     {
-        key(PK; "Economic Customer Id")
+        key(PK; "Customer No.")
         {
             Clustered = true;
-        }
-        key(Customer; "Customer No.")
-        {
         }
     }
 
@@ -158,36 +150,5 @@ table 51004 "Economic Customer Mapping"
     begin
         if xRec."Customer No." <> "Customer No." then
             Validate("Sync Status", Enum::"Economic Sync Status"::Modified);
-    end;
-
-    procedure SuggestCustomerNo(): Code[20]
-    var
-        Customer: Record Customer;
-        SuggestedNo: Code[20];
-        Counter: Integer;
-    begin
-        // Try using economic customer number first
-        if "Economic Customer Number" <> '' then begin
-            SuggestedNo := CopyStr("Economic Customer Number", 1, 20);
-            if not Customer.Get(SuggestedNo) then
-                exit(SuggestedNo);
-        end;
-
-        // Try using economic customer name
-        if "Economic Customer Name" <> '' then begin
-            SuggestedNo := CopyStr("Economic Customer Name", 1, 20);
-            if not Customer.Get(SuggestedNo) then
-                exit(SuggestedNo);
-        end;
-
-        // Generate numbered suggestions
-        SuggestedNo := CopyStr(StrSubstNo('ECON%1', "Economic Customer Id"), 1, 20);
-        Counter := 1;
-        while Customer.Get(SuggestedNo) do begin
-            Counter += 1;
-            SuggestedNo := CopyStr(StrSubstNo('ECON%1-%2', "Economic Customer Id", Counter), 1, 20);
-        end;
-
-        exit(SuggestedNo);
     end;
 }
