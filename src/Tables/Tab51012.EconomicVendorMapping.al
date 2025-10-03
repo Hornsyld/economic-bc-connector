@@ -68,4 +68,28 @@ table 51012 "Economic Vendor Mapping"
     begin
         "Last Sync DateTime" := CurrentDateTime;
     end;
+
+    procedure SuggestVendorNo(): Code[20]
+    var
+        Vendor: Record Vendor;
+        SuggestedNo: Code[20];
+        Counter: Integer;
+    begin
+        // Try using economic vendor number first
+        if "Economic Vendor Number" <> '' then begin
+            SuggestedNo := CopyStr("Economic Vendor Number", 1, 20);
+            if not Vendor.Get(SuggestedNo) then
+                exit(SuggestedNo);
+        end;
+
+        // Generate numbered suggestions
+        SuggestedNo := CopyStr(StrSubstNo('VEND%1', "Economic Vendor Id"), 1, 20);
+        Counter := 1;
+        while Vendor.Get(SuggestedNo) do begin
+            Counter += 1;
+            SuggestedNo := CopyStr(StrSubstNo('VEND%1-%2', "Economic Vendor Id", Counter), 1, 20);
+        end;
+        
+        exit(SuggestedNo);
+    end;
 }

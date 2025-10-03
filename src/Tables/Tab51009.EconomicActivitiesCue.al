@@ -15,14 +15,14 @@ table 51009 "Economic Activities Cue"
             Caption = 'Customers to Sync';
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = count(Customer where("Economic Sync Status" = const(Modified)));
+            CalcFormula = count("Economic Customer Mapping" where("Sync Status" = filter(<> Synced)));
         }
         field(3; VendorsToSync; Integer)
         {
             Caption = 'Vendors to Sync';
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = count(Vendor where("Economic Sync Status" = const(Modified)));
+            CalcFormula = count("Economic Vendor Mapping" where("Sync Status" = filter(<> Synced)));
         }
         field(4; CountryMappings; Integer)
         {
@@ -36,14 +36,14 @@ table 51009 "Economic Activities Cue"
             Caption = 'Customers Modified';
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = count(Customer where("Economic Sync Status" = const(New)));
+            CalcFormula = count("Economic Customer Mapping" where("Sync Status" = const(Modified)));
         }
         field(6; VendorsModified; Integer)
         {
             Caption = 'Vendors Modified';
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = count(Vendor where("Economic Sync Status" = const(New)));
+            CalcFormula = count("Economic Vendor Mapping" where("Sync Status" = const(Modified)));
         }
         field(7; IntegrationLogs; Integer)
         {

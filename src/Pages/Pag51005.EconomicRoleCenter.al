@@ -63,7 +63,7 @@ page 51005 "Economic Role Center"
                 ApplicationArea = All;
                 Caption = 'Customers';
                 Image = Customer;
-                RunObject = Page "Economic Customer Overview";
+                RunObject = Page "Economic Customer Mapping";
                 ToolTip = 'View and manage e-conomic customers.';
             }
             action(Vendors)
@@ -71,7 +71,7 @@ page 51005 "Economic Role Center"
                 ApplicationArea = All;
                 Caption = 'Vendors';
                 Image = Vendor;
-                RunObject = Page "Economic Vendor Overview";
+                RunObject = Page "Economic Vendor Mapping";
                 ToolTip = 'View and manage e-conomic vendors.';
             }
             action(CountryMapping)

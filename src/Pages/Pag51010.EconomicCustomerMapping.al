@@ -117,23 +117,11 @@ page 51010 "Economic Customer Mapping"
                     ToolTip = 'Specifies if the customer is barred in e-conomic.';
                 }
                 
-                // Staging Control
-                field("Create BC Customer"; Rec."Create BC Customer")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies whether to create a Business Central customer for this e-conomic customer.';
-                }
-                
                 // Business Central Mapping
                 field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the mapped Business Central customer number.';
-
-                    trigger OnAssistEdit()
-                    begin
-                        SuggestCustomerMapping();
-                    end;
                 }
                 field("Customer Name"; Rec."Customer Name")
                 {
@@ -178,48 +166,19 @@ page 51010 "Economic Customer Mapping"
                     EconomicMgt.GetCustomers();
                 end;
             }
-            action(CreateCustomers)
-            {
-                ApplicationArea = All;
-                Caption = 'Create BC Customers';
-                Image = NewCustomer;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                ToolTip = 'Creates Business Central customers from selected e-conomic customers.';
-
-                trigger OnAction()
-                begin
-                    CreateSelectedCustomers();
-                end;
-            }
             action(CreateAllCustomers)
             {
                 ApplicationArea = All;
-                Caption = 'Create All Marked Customers';
+                Caption = 'Create All Unsynced Customers';
                 Image = CreateForm;
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
-                ToolTip = 'Creates Business Central customers for all e-conomic customers marked for creation.';
+                ToolTip = 'Creates Business Central customers for all unsynced e-conomic customers.';
 
                 trigger OnAction()
                 begin
-                    CreateAllMarkedCustomers();
-                end;
-            }
-            action(SuggestMappings)
-            {
-                ApplicationArea = All;
-                Caption = 'Suggest Customer Mappings';
-                Image = Suggest;
-                Promoted = true;
-                PromotedCategory = Process;
-                ToolTip = 'Suggests Business Central customer numbers for e-conomic customers.';
-
-                trigger OnAction()
-                begin
-                    SuggestAllCustomerMappings();
+                    CreateAllUnsyncedCustomers();
                 end;
             }
             action(SyncCustomer)
@@ -263,66 +222,7 @@ page 51010 "Economic Customer Mapping"
         end;
     end;
 
-    local procedure SuggestCustomerMapping()
-    var
-        SuggestedNo: Code[20];
-    begin
-        SuggestedNo := Rec.SuggestCustomerNo();
-        if SuggestedNo <> '' then begin
-            Rec.Validate("Customer No.", SuggestedNo);
-            Rec.Modify(true);
-            CurrPage.Update(false);
-        end;
-    end;
-
-    local procedure SuggestAllCustomerMappings()
-    var
-        EconomicCustomerMapping: Record "Economic Customer Mapping";
-        Counter: Integer;
-    begin
-        // Find records without BC customer numbers
-        EconomicCustomerMapping.SetRange("Customer No.", '');
-        EconomicCustomerMapping.SetRange("Create BC Customer", true);
-        if EconomicCustomerMapping.FindSet(true) then
-            repeat
-                EconomicCustomerMapping.Validate("Customer No.", EconomicCustomerMapping.SuggestCustomerNo());
-                EconomicCustomerMapping.Modify(true);
-                Counter += 1;
-            until EconomicCustomerMapping.Next() = 0;
-
-        Message('Suggested customer numbers for %1 e-conomic customers.', Counter);
-        CurrPage.Update(false);
-    end;
-
-    local procedure CreateSelectedCustomers()
-    var
-        EconomicCustomerMapping: Record "Economic Customer Mapping";
-        SelectedRecords: Record "Economic Customer Mapping";
-        Counter: Integer;
-        SkippedCounter: Integer;
-    begin
-        CurrPage.SetSelectionFilter(SelectedRecords);
-        if not SelectedRecords.FindSet() then begin
-            Message('No customers selected.');
-            exit;
-        end;
-
-        repeat
-            EconomicCustomerMapping.Get(SelectedRecords."Economic Customer Id");
-            if EconomicCustomerMapping."Create BC Customer" and (EconomicCustomerMapping."Sync Status" <> EconomicCustomerMapping."Sync Status"::Synced) then begin
-                if CreateSingleCustomer(EconomicCustomerMapping) then
-                    Counter += 1
-                else
-                    SkippedCounter += 1;
-            end else
-                SkippedCounter += 1;
-        until SelectedRecords.Next() = 0;
-
-        Message('Created %1 customers. Skipped %2 customers.', Counter, SkippedCounter);
-        CurrPage.Update(false);
-    end;
-
-    local procedure CreateAllMarkedCustomers()
+    local procedure CreateAllUnsyncedCustomers()
     var
         EconomicCustomerMapping: Record "Economic Customer Mapping";
         Counter: Integer;
@@ -331,12 +231,11 @@ page 51010 "Economic Customer Mapping"
         ProcessedRecords: Integer;
         Dialog: Dialog;
     begin
-        // Find all records marked for creation that haven't been synced yet
-        EconomicCustomerMapping.SetRange("Create BC Customer", true);
+        // Find all records that haven't been synced yet
         EconomicCustomerMapping.SetFilter("Sync Status", '<>%1', EconomicCustomerMapping."Sync Status"::Synced);
         
         if not EconomicCustomerMapping.FindSet() then begin
-            Message('No customers marked for creation found.');
+            Message('No unsynced customers found.');
             exit;
         end;
 

@@ -39,11 +39,6 @@ table 51004 "Economic Customer Mapping"
             DataClassification = CustomerContent;
             Editable = false;
         }
-        field(7; "Create BC Customer"; Boolean)
-        {
-            Caption = 'Create BC Customer';
-            DataClassification = CustomerContent;
-        }
         field(10; "Economic Customer Name"; Text[100])
         {
             Caption = 'Economic Customer Name';

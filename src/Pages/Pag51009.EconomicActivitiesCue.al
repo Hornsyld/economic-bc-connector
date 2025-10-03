@@ -15,15 +15,15 @@ page 51009 "Economic Activities Cue"
                 field(CustomersToSync; Rec.CustomersToSync)
                 {
                     ApplicationArea = All;
-                    Caption = 'Customers to Sync';
-                    DrillDownPageId = "Economic Customer Overview";
+                    Caption = 'Customer Mapping';
+                    DrillDownPageId = "Economic Customer Mapping";
                     ToolTip = 'Shows the number of customers that need to be synchronized.';
                 }
                 field(VendorsToSync; Rec.VendorsToSync)
                 {
                     ApplicationArea = All;
-                    Caption = 'Vendors to Sync';
-                    DrillDownPageId = "Economic Vendor Overview";
+                    Caption = 'Vendor Mapping';
+                    DrillDownPageId = "Economic Vendor Mapping";
                     ToolTip = 'Shows the number of vendors that need to be synchronized.';
                 }
                 field(CountryMappings; Rec.CountryMappings)
@@ -41,14 +41,14 @@ page 51009 "Economic Activities Cue"
                 {
                     ApplicationArea = All;
                     Caption = 'Customers Modified';
-                    DrillDownPageId = "Economic Customer Overview";
+                    DrillDownPageId = "Economic Customer Mapping";
                     ToolTip = 'Shows the number of customers modified in the last 24 hours.';
                 }
                 field(VendorsModified; Rec.VendorsModified)
                 {
                     ApplicationArea = All;
                     Caption = 'Vendors Modified';
-                    DrillDownPageId = "Economic Vendor Overview";
+                    DrillDownPageId = "Economic Vendor Mapping";
                     ToolTip = 'Shows the number of vendors modified in the last 24 hours.';
                 }
                 field(IntegrationLogs; Rec.IntegrationLogs)
