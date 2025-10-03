@@ -1205,7 +1205,7 @@ Much cleaner approach than the codeunit method. Thank you for showing me the pro
 
 ---
 
-_**User (2025-10-03 09:58Z)**_
+_**User (2025-10-03 09:59Z)**_
 
 It works. Now I am getting this error: 
 Error: The record in table Economic Activities Cue already exists. Identification fields and values: Primary Key='DEFAULT'.
@@ -1218,7 +1218,60 @@ _**Assistant (copilot/claude-sonnet-4)**_
 
 Great that the profile works! The error indicates that the Economic Activities Cue table is trying to insert a record with Primary Key 'DEFAULT' that already exists. This is likely happening in the OnOpenPage trigger or initialization code.
 
-Let me check the Economic Activities Cue page and table to fix this issue: 
+Let me check the Economic Activities Cue page and table to fix this issue: I found the issue! The OnOpenPage trigger is trying to insert a record without checking if it already exists. Let me check the table structure: I see the issue! The `InitRecord()` procedure sets `PrimaryKey := 'DEFAULT'`, and the page is trying to insert this record even if it already exists. The problem is that `Rec.Get()` without parameters doesn't work properly when there's no current record, and the logic assumes it should always insert.
+
+Let me fix this by modifying the OnOpenPage trigger to properly check for the specific record: 
+```
+
+```
+Now let me check if there are any errors: Perfect! Let me also check the current `app.json` to see if you made any changes: I see you updated the runtime to 15.2. Let me commit the fix: Perfect! ✅ **Duplicate Primary Key Error Fixed!**
+
+## 🎯 **What Was Wrong:**
+
+The error occurred because the Economic Activities Cue page was using:
+```al
+if not Rec.Get() then begin
+```
+
+This `Get()` without parameters doesn't work properly when there's no current record context, so it was always trying to insert a new record with Primary Key 'DEFAULT', even if one already existed.
+
+## ✅ **What I Fixed:**
+
+Changed it to:
+```al
+if not Rec.Get('DEFAULT') then begin
+```
+
+Now it specifically checks for the 'DEFAULT' record before trying to create it.
+
+## 🚀 **How It Works Now:**
+
+1. **First time opening role center:** Creates the 'DEFAULT' record
+2. **Subsequent openings:** Finds the existing 'DEFAULT' record and refreshes the data
+3. **No more duplicate errors:** Properly checks for existing record before insertion
+
+The Economic Integration role center should now open without any duplicate primary key errors! 🎉
+
+---
+
+_**User (2025-10-03 10:02Z)**_
+
+Can you add a dialog/window that opens when you press the synconize customers/vendor etc.
+
+IF GUIALLOWED THEN BEGIN
+                    Counter[2] := Counter[2] + 1;
+                    Window.UPDATE(2, Counter[2]);
+                END;
+
+                So you are able to see what the progress is? or is that not possible with the data being retrived from api
+
+---
+
+_**Assistant (copilot/claude-sonnet-4)**_
+
+Absolutely! That's a great idea to show progress during API operations. I can add a progress dialog window that shows the current progress when synchronizing customers/vendors. Let me implement this for the existing sync operations.
+
+Let me first check the current Economic Management codeunit to see the existing sync methods: 
 
 ---
 

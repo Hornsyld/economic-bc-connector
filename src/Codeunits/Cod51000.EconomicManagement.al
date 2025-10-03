@@ -151,9 +151,12 @@
         JsonObject: JsonObject;
         TotalFromObject: JsonObject;
         AccountCount: Integer;
+        TotalAccounts: Integer;
         RequestUrl: Text;
         ErrorContext: Text;
         ErrorText: Text;
+        Window: Dialog;
+        ProcessingLbl: Label 'Processing Accounts from e-conomic...\\Account #1######### of #2#########\Current: #3################################';
     begin
         Clear(Response);
         Clear(ResponseText);
@@ -202,6 +205,13 @@
         if JsonArray.Count = 0 then begin
             LogError("Economic Request Type"::Account, NoAccountsFoundErr, ResponseText);
             Error(NoAccountsFoundErr);
+        end;
+
+        // Initialize progress dialog
+        TotalAccounts := JsonArray.Count;
+        if GuiAllowed then begin
+            Window.Open(ProcessingLbl);
+            Window.Update(2, TotalAccounts);
         end;
 
         foreach JsonToken in JsonArray do begin
@@ -254,7 +264,17 @@
                 GLAccountMapping.Insert(true);
             end;
             AccountCount += 1;
+
+            // Update progress dialog
+            if GuiAllowed then begin
+                Window.Update(1, AccountCount);
+                Window.Update(3, GLAccountMapping."Economic Account Name");
+            end;
         end;
+
+        // Close progress dialog
+        if GuiAllowed then
+            Window.Close();
 
         // Update indentation for all accounts after import
         UpdateAccountIndentation();
@@ -746,12 +766,35 @@
         GLSetup: Record "General Ledger Setup";
         Counter: Integer;
         SkippedCounter: Integer;
+        TotalAccounts: Integer;
+        ProcessedAccounts: Integer;
+        Window: Dialog;
+        ProcessingLbl: Label 'Creating G/L Accounts from Mapping...\\Account #1######### of #2#########\Current: #3################################\Created: #4#########\Skipped: #5#########';
     begin
         GLSetup.Get();
         
+        // Count total accounts to process
         GLAccountMapping.SetCurrentKey("Economic Account No.");
+        TotalAccounts := GLAccountMapping.Count;
+        
+        // Initialize progress dialog
+        if GuiAllowed then begin
+            Window.Open(ProcessingLbl);
+            Window.Update(2, TotalAccounts);
+        end;
+
         if GLAccountMapping.FindSet() then
             repeat
+                ProcessedAccounts += 1;
+                
+                // Update progress dialog
+                if GuiAllowed then begin
+                    Window.Update(1, ProcessedAccounts);
+                    Window.Update(3, GLAccountMapping."Economic Account Name");
+                    Window.Update(4, Counter);
+                    Window.Update(5, SkippedCounter);
+                end;
+
                 if GLAccountMapping."BC Account No." <> '' then begin
                     if not GLAccount.Get(GLAccountMapping."BC Account No.") then begin
                         GLAccount.Init();
@@ -806,6 +849,10 @@
                 end;
             until GLAccountMapping.Next() = 0;
 
+        // Close progress dialog
+        if GuiAllowed then
+            Window.Close();
+
         Message('G/L Account creation completed.\Created: %1\Skipped (already exists or no BC Account No.): %2', Counter, SkippedCounter);
     end;
 
@@ -833,6 +880,9 @@
         JObject: JsonObject;
         CustomerMapping: Record "Economic Customer Mapping";
         Counter: Integer;
+        TotalCustomers: Integer;
+        Window: Dialog;
+        ProcessingLbl: Label 'Processing Customers from e-conomic...\\Customer #1######### of #2#########\Current: #3################################';
     begin
         if not InitializeClient(Client) then
             Error(MissingSetupErr);
@@ -851,11 +901,32 @@
 
         // Parse JSON response
         JArray.ReadFrom(ResponseText);
+        TotalCustomers := JArray.Count;
+
+        // Initialize progress dialog
+        if GuiAllowed then begin
+            Window.Open(ProcessingLbl);
+            Window.Update(2, TotalCustomers);
+        end;
+
         foreach JToken in JArray do begin
             JObject := JToken.AsObject();
             ProcessCustomerJson(JObject);
             Counter += 1;
+
+            // Update progress dialog
+            if GuiAllowed then begin
+                Window.Update(1, Counter);
+                if JObject.Get('name', JToken) then
+                    Window.Update(3, JToken.AsValue().AsText())
+                else if JObject.Get('customerNumber', JToken) then
+                    Window.Update(3, JToken.AsValue().AsText());
+            end;
         end;
+
+        // Close progress dialog
+        if GuiAllowed then
+            Window.Close();
 
         Message(CustomersFetchedMsg, Counter);
     end;
