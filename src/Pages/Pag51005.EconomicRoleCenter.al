@@ -34,6 +34,30 @@ page 51005 "Economic Role Center"
                 RunObject = Page "Economic Setup";
                 ToolTip = 'Set up the e-conomic integration.';
             }
+            action(GLAccountMapping)
+            {
+                ApplicationArea = All;
+                Caption = 'GL Account Mapping';
+                Image = ChartOfAccounts;
+                RunObject = Page "Economic GL Account Mapping";
+                ToolTip = 'Map e-conomic accounts to Business Central G/L accounts and retrieve account data.';
+            }
+            action(CustomerMapping)
+            {
+                ApplicationArea = All;
+                Caption = 'Customer Mapping';
+                Image = CustomerList;
+                RunObject = Page "Economic Customer Mapping";
+                ToolTip = 'Retrieve and map customer data from e-conomic.';
+            }
+            action(VendorMapping)
+            {
+                ApplicationArea = All;
+                Caption = 'Vendor Mapping';
+                Image = Vendor;
+                RunObject = Page "Economic Vendor Mapping";
+                ToolTip = 'Retrieve and map vendor data from e-conomic.';
+            }
             action(Customers)
             {
                 ApplicationArea = All;

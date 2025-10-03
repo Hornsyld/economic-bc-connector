@@ -5,6 +5,10 @@ page 51001 "Economic GL Account Mapping"
     UsageCategory = Lists;
     SourceTable = "Economic GL Account Mapping";
     Caption = 'Migration Account Mapping';
+    Editable = true;
+    InsertAllowed = true;
+    DeleteAllowed = true;
+    ModifyAllowed = true;
 
     layout
     {
@@ -130,6 +134,71 @@ page 51001 "Economic GL Account Mapping"
                 begin
                     if Confirm('Do you want to create G/L Accounts in Business Central from the mapped e-conomic accounts?\This will create actual G/L Account records based on the mapping information.') then
                         EconomicManagement.CreateGLAccountsFromMapping();
+                end;
+            }
+            action(DeleteAllRecords)
+            {
+                ApplicationArea = All;
+                Caption = 'Delete All Records';
+                Image = Delete;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'Delete all account mapping records';
+
+                trigger OnAction()
+                var
+                    EconomicGLAccountMapping: Record "Economic GL Account Mapping";
+                    DeletedCount: Integer;
+                begin
+                    if not Confirm('Are you sure you want to delete ALL account mapping records?\This action cannot be undone.') then
+                        exit;
+
+                    if EconomicGLAccountMapping.FindSet() then begin
+                        repeat
+                            DeletedCount += 1;
+                        until EconomicGLAccountMapping.Next() = 0;
+                        
+                        EconomicGLAccountMapping.DeleteAll();
+                        Message('Successfully deleted %1 account mapping records.', DeletedCount);
+                        CurrPage.Update(false);
+                    end else
+                        Message('No records found to delete.');
+                end;
+            }
+            action(DeleteSelectedRecords)
+            {
+                ApplicationArea = All;
+                Caption = 'Delete Selected Records';
+                Image = Delete;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Delete the currently selected account mapping records';
+
+                trigger OnAction()
+                var
+                    EconomicGLAccountMapping: Record "Economic GL Account Mapping";
+                    SelectedRecord: Record "Economic GL Account Mapping";
+                    DeletedCount: Integer;
+                begin
+                    CurrPage.SetSelectionFilter(SelectedRecord);
+                    
+                    if not SelectedRecord.FindSet() then begin
+                        Message('No records selected for deletion.');
+                        exit;
+                    end;
+
+                    if not Confirm('Are you sure you want to delete the selected account mapping records?\This action cannot be undone.') then
+                        exit;
+
+                    repeat
+                        EconomicGLAccountMapping.Get(SelectedRecord."Economic Account No.");
+                        EconomicGLAccountMapping.Delete();
+                        DeletedCount += 1;
+                    until SelectedRecord.Next() = 0;
+
+                    Message('Successfully deleted %1 account mapping records.', DeletedCount);
+                    CurrPage.Update(false);
                 end;
             }
         }

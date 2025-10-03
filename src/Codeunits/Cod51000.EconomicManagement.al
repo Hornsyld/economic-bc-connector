@@ -10,6 +10,8 @@
         AccountsFetchedMsg: Label 'Successfully fetched %1 accounts from e-conomic.';
         CustomersEndpointLbl: Label 'https://restapi.e-conomic.com/customers', Locked = true;
         CustomersFetchedMsg: Label 'Successfully fetched %1 customers from e-conomic.';
+        VendorsEndpointLbl: Label 'https://restapi.e-conomic.com/suppliers', Locked = true;
+        VendorsFetchedMsg: Label 'Successfully fetched %1 vendors from e-conomic.';
         NoAccountsFoundErr: Label 'No accounts were found in e-conomic.';
         JournalCreatedMsg: Label 'Successfully created general journal entries.';
         HttpErrorMsg: Label 'The request failed with status code %1. Details: %2';
@@ -899,8 +901,17 @@
 
         LogAPICall('Get Customers - Success', Response, ResponseText);
 
-        // Parse JSON response
-        JArray.ReadFrom(ResponseText);
+        // Parse the root JSON object
+        if not JObject.ReadFrom(ResponseText) then begin
+            Error(InvalidJsonErr);
+        end;
+
+        // Get the collection property
+        if not JObject.Get('collection', JToken) then begin
+            Error(InvalidTokenErr);
+        end;
+
+        JArray := JToken.AsArray();
         TotalCustomers := JArray.Count;
 
         // Initialize progress dialog
@@ -1011,9 +1022,15 @@
     var
         CustomerMapping: Record "Economic Customer Mapping";
         Customer: Record Customer;
+        CountryMapping: Record "Economic Country Mapping";
         JToken: JsonToken;
+        AddressToken: JsonToken;
+        AddressObject: JsonObject;
+        ContactObject: JsonObject;
         CustomerId: Integer;
         CustomerNumber: Text;
+        CustomerName: Text;
+        IsNewCustomer: Boolean;
     begin
         // Get customer ID and number from JSON
         if not JObject.Get('customerNumber', JToken) or
@@ -1026,20 +1043,107 @@
             exit;
         CustomerId := JToken.AsValue().AsInteger();
 
-        // Check if mapping already exists
+        // Get customer name
+        if JObject.Get('name', JToken) and not JToken.AsValue().IsNull then
+            CustomerName := JToken.AsValue().AsText();
+
+        // Check if BC customer exists
+        if not Customer.Get(CustomerNumber) then begin
+            // Create new customer
+            Customer.Init();
+            Customer."No." := CustomerNumber;
+            IsNewCustomer := true;
+        end;
+
+        // Update customer information from e-conomic
+        if CustomerName <> '' then
+            Customer.Name := CopyStr(CustomerName, 1, MaxStrLen(Customer.Name));
+
+        // Handle customer address
+        if JObject.Get('address', AddressToken) and not AddressToken.AsValue().IsNull then begin
+            AddressObject := AddressToken.AsObject();
+            
+            if AddressObject.Get('street', JToken) and not JToken.AsValue().IsNull then
+                Customer.Address := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer.Address));
+                
+            if AddressObject.Get('zip', JToken) and not JToken.AsValue().IsNull then
+                Customer."Post Code" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer."Post Code"));
+                
+            if AddressObject.Get('city', JToken) and not JToken.AsValue().IsNull then
+                Customer.City := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer.City));
+                
+            if AddressObject.Get('country', JToken) and not JToken.AsValue().IsNull then begin
+                // Try to map e-conomic country to BC country code
+                if CountryMapping.Get(JToken.AsValue().AsText()) then
+                    Customer.Validate("Country/Region Code", CountryMapping."Country/Region Code");
+            end;
+        end;
+
+        // Handle contact information
+        if JObject.Get('email', JToken) and not JToken.AsValue().IsNull then
+            Customer."E-Mail" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer."E-Mail"));
+
+        if JObject.Get('phone', JToken) and not JToken.AsValue().IsNull then
+            Customer."Phone No." := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer."Phone No."));
+
+        if JObject.Get('mobilePhone', JToken) and not JToken.AsValue().IsNull then
+            Customer."Mobile Phone No." := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer."Mobile Phone No."));
+
+        // Handle VAT information
+        if JObject.Get('corporateIdentificationNumber', JToken) and not JToken.AsValue().IsNull then
+            Customer."VAT Registration No." := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer."VAT Registration No."));
+
+        // Handle currency
+        if JObject.Get('currency', JToken) and not JToken.AsValue().IsNull then begin
+            ContactObject := JToken.AsObject();
+            if ContactObject.Get('code', JToken) and not JToken.AsValue().IsNull then
+                Customer."Currency Code" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer."Currency Code"));
+        end;
+
+        // Handle payment terms
+        if JObject.Get('paymentTerms', JToken) and not JToken.AsValue().IsNull then begin
+            ContactObject := JToken.AsObject();
+            if ContactObject.Get('paymentTermsNumber', JToken) and not JToken.AsValue().IsNull then
+                Customer."Payment Terms Code" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer."Payment Terms Code"));
+        end;
+
+        // Handle customer group
+        if JObject.Get('customerGroup', JToken) and not JToken.AsValue().IsNull then begin
+            ContactObject := JToken.AsObject();
+            if ContactObject.Get('customerGroupNumber', JToken) and not JToken.AsValue().IsNull then
+                Customer."Customer Posting Group" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Customer."Customer Posting Group"));
+        end;
+
+        // Handle credit limit
+        if JObject.Get('creditLimit', JToken) and not JToken.AsValue().IsNull then
+            Customer."Credit Limit (LCY)" := JToken.AsValue().AsDecimal();
+
+        // Handle blocked status
+        if JObject.Get('blocked', JToken) and not JToken.AsValue().IsNull then
+            if JToken.AsValue().AsBoolean() then
+                Customer.Blocked := Customer.Blocked::All;
+
+        // Insert or modify customer
+        if IsNewCustomer then
+            Customer.Insert(true)
+        else
+            Customer.Modify(true);
+
+        // Update or create mapping record
         CustomerMapping.SetRange("Economic Customer Id", CustomerId);
         if not CustomerMapping.FindFirst() then begin
-            // Create new mapping
             CustomerMapping.Init();
             CustomerMapping."Economic Customer Id" := CustomerId;
             CustomerMapping."Economic Customer Number" := CustomerNumber;
-
-            // Try to find matching customer by number
-            if Customer.Get(CustomerNumber) then
-                CustomerMapping.Validate("Customer No.", CustomerNumber);
-
+            CustomerMapping.Validate("Customer No.", CustomerNumber);
             CustomerMapping."Last Sync DateTime" := CurrentDateTime;
+            CustomerMapping.Validate("Sync Status", CustomerMapping."Sync Status"::Synced);
             CustomerMapping.Insert(true);
+        end else begin
+            CustomerMapping.Validate("Customer No.", CustomerNumber);
+            CustomerMapping."Last Sync DateTime" := CurrentDateTime;
+            CustomerMapping.Validate("Sync Status", CustomerMapping."Sync Status"::Synced);
+            CustomerMapping.Modify(true);
         end;
     end;
 
@@ -1065,5 +1169,303 @@
 
         CustomerMapping."Last Sync DateTime" := CurrentDateTime;
         CustomerMapping.Validate("Sync Status", CustomerMapping."Sync Status"::Synced);
+    end;
+
+    /// <summary>
+    /// Retrieves vendors from e-conomic and creates/updates vendor mappings.
+    /// </summary>
+    procedure GetVendors()
+    var
+        Client: HttpClient;
+        Headers: HttpHeaders;
+        Response: HttpResponseMessage;
+        JArray: JsonArray;
+        JToken: JsonToken;
+        JObject: JsonObject;
+        VendorMapping: Record "Economic Vendor Mapping";
+        Counter: Integer;
+        TotalVendors: Integer;
+        Window: Dialog;
+        ProcessingLbl: Label 'Processing Vendors from e-conomic...\\Vendor #1######### of #2#########\Current: #3################################';
+    begin
+        if not InitializeClient(Client) then
+            Error(MissingSetupErr);
+
+        // Get response
+        if not Client.Get(VendorsEndpointLbl, Response) then
+            Error('Failed to get vendors from e-conomic');
+
+        if not Response.IsSuccessStatusCode() then
+            Error('Failed to get vendors. Status code: %1', Response.HttpStatusCode);
+
+        // Get response content
+        Response.Content().ReadAs(ResponseText);
+
+        LogAPICall('Get Vendors - Success', Response, ResponseText);
+
+        // Parse the root JSON object
+        if not JObject.ReadFrom(ResponseText) then begin
+            Error(InvalidJsonErr);
+        end;
+
+        // Get the collection property
+        if not JObject.Get('collection', JToken) then begin
+            Error(InvalidTokenErr);
+        end;
+
+        JArray := JToken.AsArray();
+        TotalVendors := JArray.Count;
+
+        // Initialize progress dialog
+        if GuiAllowed then begin
+            Window.Open(ProcessingLbl);
+            Window.Update(2, TotalVendors);
+        end;
+
+        foreach JToken in JArray do begin
+            JObject := JToken.AsObject();
+            ProcessVendorJson(JObject);
+            Counter += 1;
+
+            // Update progress dialog
+            if GuiAllowed then begin
+                Window.Update(1, Counter);
+                if JObject.Get('name', JToken) then
+                    Window.Update(3, JToken.AsValue().AsText())
+                else if JObject.Get('supplierNumber', JToken) then
+                    Window.Update(3, JToken.AsValue().AsText());
+            end;
+        end;
+
+        // Close progress dialog
+        if GuiAllowed then
+            Window.Close();
+
+        Message(VendorsFetchedMsg, Counter);
+    end;
+
+    /// <summary>
+    /// Synchronizes a specific vendor with e-conomic.
+    /// </summary>
+    /// <param name="VendorNo">The Business Central vendor number to synchronize.</param>
+    procedure SyncVendor(VendorNo: Code[20])
+    var
+        Vendor: Record Vendor;
+        VendorMapping: Record "Economic Vendor Mapping";
+        Client: HttpClient;
+        Content: HttpContent;
+        Headers: HttpHeaders;
+        Response: HttpResponseMessage;
+        JObject: JsonObject;
+        RequestText: Text;
+    begin
+        if not InitializeClient(Client) then
+            Error(MissingSetupErr);
+
+        // Get vendor
+        if not Vendor.Get(VendorNo) then
+            Error('Vendor %1 not found', VendorNo);
+
+        // Check if vendor mapping exists
+        VendorMapping.SetRange("Vendor No.", VendorNo);
+        if VendorMapping.FindFirst() then begin
+            // Update existing vendor
+            CreateVendorJson(Vendor, JObject);
+            JObject.WriteTo(RequestText);
+
+            Content.WriteFrom(RequestText);
+            Content.GetHeaders(Headers);
+            Headers.Remove('Content-Type');
+            Headers.Add('Content-Type', 'application/json');
+
+            if not Client.Put(StrSubstNo('%1/%2', VendorsEndpointLbl, VendorMapping."Economic Vendor Id"), Content, Response) then
+                Error('Failed to update vendor in e-conomic');
+
+            if not Response.IsSuccessStatusCode() then
+                Error('Failed to update vendor. Status code: %1', Response.HttpStatusCode);
+
+            Response.Content().ReadAs(ResponseText);
+
+            LogAPICall('Update Vendor - Success', Response, ResponseText);
+
+            // Update mapping
+            VendorMapping.Validate("Sync Status", VendorMapping."Sync Status"::Synced);
+            VendorMapping."Last Sync DateTime" := CurrentDateTime;
+            VendorMapping.Modify(true);
+        end else begin
+            // Create new vendor
+            CreateVendorJson(Vendor, JObject);
+            JObject.WriteTo(RequestText);
+
+            Content.WriteFrom(RequestText);
+            Content.GetHeaders(Headers);
+            Headers.Remove('Content-Type');
+            Headers.Add('Content-Type', 'application/json');
+
+            if not Client.Post(VendorsEndpointLbl, Content, Response) then
+                Error('Failed to create vendor in e-conomic');
+
+            if not Response.IsSuccessStatusCode() then
+                Error('Failed to create vendor. Status code: %1', Response.HttpStatusCode);
+
+            Response.Content().ReadAs(ResponseText);
+
+            LogAPICall('Create Vendor - Success', Response, ResponseText);
+
+            // Create new mapping
+            VendorMapping.Init();
+            VendorMapping.Validate("Vendor No.", VendorNo);
+            ParseVendorResponse(ResponseText, VendorMapping);
+            VendorMapping.Insert(true);
+        end;
+    end;
+
+    local procedure ProcessVendorJson(JObject: JsonObject)
+    var
+        VendorMapping: Record "Economic Vendor Mapping";
+        Vendor: Record Vendor;
+        CountryMapping: Record "Economic Country Mapping";
+        JToken: JsonToken;
+        AddressToken: JsonToken;
+        AddressObject: JsonObject;
+        ContactObject: JsonObject;
+        VendorId: Integer;
+        VendorNumber: Text;
+        VendorName: Text;
+        IsNewVendor: Boolean;
+    begin
+        // Get vendor ID and number from JSON
+        if not JObject.Get('supplierNumber', JToken) or
+           JToken.AsValue().IsNull then
+            exit;
+        VendorNumber := JToken.AsValue().AsText();
+
+        if not JObject.Get('id', JToken) or
+           JToken.AsValue().IsNull then
+            exit;
+        VendorId := JToken.AsValue().AsInteger();
+
+        // Get vendor name
+        if JObject.Get('name', JToken) and not JToken.AsValue().IsNull then
+            VendorName := JToken.AsValue().AsText();
+
+        // Check if BC vendor exists
+        if not Vendor.Get(VendorNumber) then begin
+            // Create new vendor
+            Vendor.Init();
+            Vendor."No." := VendorNumber;
+            IsNewVendor := true;
+        end;
+
+        // Update vendor information from e-conomic
+        if VendorName <> '' then
+            Vendor.Name := CopyStr(VendorName, 1, MaxStrLen(Vendor.Name));
+
+        // Handle vendor address
+        if JObject.Get('address', AddressToken) and not AddressToken.AsValue().IsNull then begin
+            AddressObject := AddressToken.AsObject();
+            
+            if AddressObject.Get('street', JToken) and not JToken.AsValue().IsNull then
+                Vendor.Address := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor.Address));
+                
+            if AddressObject.Get('zip', JToken) and not JToken.AsValue().IsNull then
+                Vendor."Post Code" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor."Post Code"));
+                
+            if AddressObject.Get('city', JToken) and not JToken.AsValue().IsNull then
+                Vendor.City := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor.City));
+                
+            if AddressObject.Get('country', JToken) and not JToken.AsValue().IsNull then begin
+                // Try to map e-conomic country to BC country code
+                if CountryMapping.Get(JToken.AsValue().AsText()) then
+                    Vendor.Validate("Country/Region Code", CountryMapping."Country/Region Code");
+            end;
+        end;
+
+        // Handle contact information
+        if JObject.Get('email', JToken) and not JToken.AsValue().IsNull then
+            Vendor."E-Mail" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor."E-Mail"));
+
+        if JObject.Get('phone', JToken) and not JToken.AsValue().IsNull then
+            Vendor."Phone No." := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor."Phone No."));
+
+        if JObject.Get('mobilePhone', JToken) and not JToken.AsValue().IsNull then
+            Vendor."Mobile Phone No." := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor."Mobile Phone No."));
+
+        // Handle VAT information
+        if JObject.Get('corporateIdentificationNumber', JToken) and not JToken.AsValue().IsNull then
+            Vendor."VAT Registration No." := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor."VAT Registration No."));
+
+        // Handle currency
+        if JObject.Get('currency', JToken) and not JToken.AsValue().IsNull then begin
+            ContactObject := JToken.AsObject();
+            if ContactObject.Get('code', JToken) and not JToken.AsValue().IsNull then
+                Vendor."Currency Code" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor."Currency Code"));
+        end;
+
+        // Handle payment terms
+        if JObject.Get('paymentTerms', JToken) and not JToken.AsValue().IsNull then begin
+            ContactObject := JToken.AsObject();
+            if ContactObject.Get('paymentTermsNumber', JToken) and not JToken.AsValue().IsNull then
+                Vendor."Payment Terms Code" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor."Payment Terms Code"));
+        end;
+
+        // Handle vendor group
+        if JObject.Get('supplierGroup', JToken) and not JToken.AsValue().IsNull then begin
+            ContactObject := JToken.AsObject();
+            if ContactObject.Get('supplierGroupNumber', JToken) and not JToken.AsValue().IsNull then
+                Vendor."Vendor Posting Group" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(Vendor."Vendor Posting Group"));
+        end;
+
+        // Handle blocked status
+        if JObject.Get('blocked', JToken) and not JToken.AsValue().IsNull then
+            if JToken.AsValue().AsBoolean() then
+                Vendor.Blocked := Vendor.Blocked::All;
+
+        // Insert or modify vendor
+        if IsNewVendor then
+            Vendor.Insert(true)
+        else
+            Vendor.Modify(true);
+
+        // Update or create mapping record
+        VendorMapping.SetRange("Economic Vendor Id", VendorId);
+        if not VendorMapping.FindFirst() then begin
+            VendorMapping.Init();
+            VendorMapping."Economic Vendor Id" := VendorId;
+            VendorMapping."Economic Vendor Number" := VendorNumber;
+            VendorMapping.Validate("Vendor No.", VendorNumber);
+            VendorMapping."Last Sync DateTime" := CurrentDateTime;
+            VendorMapping.Validate("Sync Status", VendorMapping."Sync Status"::Synced);
+            VendorMapping.Insert(true);
+        end else begin
+            VendorMapping.Validate("Vendor No.", VendorNumber);
+            VendorMapping."Last Sync DateTime" := CurrentDateTime;
+            VendorMapping.Validate("Sync Status", VendorMapping."Sync Status"::Synced);
+            VendorMapping.Modify(true);
+        end;
+    end;
+
+    local procedure CreateVendorJson(Vendor: Record Vendor; var JObject: JsonObject)
+    begin
+        JObject.Add('name', Vendor.Name);
+        JObject.Add('supplierNumber', Vendor."No.");
+        // Add more fields as needed
+    end;
+
+    local procedure ParseVendorResponse(ResponseText: Text; var VendorMapping: Record "Economic Vendor Mapping")
+    var
+        JObject: JsonObject;
+        JToken: JsonToken;
+    begin
+        JObject.ReadFrom(ResponseText);
+
+        if JObject.Get('id', JToken) then
+            VendorMapping."Economic Vendor Id" := JToken.AsValue().AsInteger();
+
+        if JObject.Get('supplierNumber', JToken) then
+            VendorMapping."Economic Vendor Number" := JToken.AsValue().AsText();
+
+        VendorMapping."Last Sync DateTime" := CurrentDateTime;
+        VendorMapping.Validate("Sync Status", VendorMapping."Sync Status"::Synced);
     end;
 }
