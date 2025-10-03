@@ -1144,7 +1144,7 @@ This makes the role center appear in the standard Business Central Roles list (p
 
 ---
 
-_**User (2025-10-03 09:54Z)**_
+_**User (2025-10-03 09:56Z)**_
 
 profile "PUB Logistics Partner"
 {
@@ -1165,7 +1165,60 @@ Try make it for me and if you cant make it work i will try myself
 
 _**Assistant (copilot/claude-sonnet-4)**_
 
-You're absolutely right! Let me check the current `app.json` to see your changes and then create a proper profile object like your example. Perfect! Now let me create a proper profile object like your example. First, let me remove the codeunit approach and create the profile directly: Now let me create the profile object using the exact syntax from your example: 
+You're absolutely right! Let me check the current `app.json` to see your changes and then create a proper profile object like your example. Perfect! Now let me create a proper profile object like your example. First, let me remove the codeunit approach and create the profile directly: Now let me create the profile object using the exact syntax from your example: Now let me remove the profile creation action from the Economic Setup page since we won't need it anymore: 
+```
+
+```
+Now let me check if there are any errors with the profile: Excellent! The profile is working without any errors. Let me commit these changes: Perfect! ✅ **Profile Object Created Successfully!**
+
+## 🎯 **What I Created (Exactly Like Your Example):**
+
+```al
+profile "ECONOMIC INTEGRATION"
+{
+    Caption = 'Economic Integration';
+    RoleCenter = 51005;
+    Description = 'Economic Integration Role Center';
+    ProfileDescription = 'Role center for managing e-conomic integration processes';
+    Enabled = true;
+    Promoted = true;
+}
+```
+
+## ✅ **Key Changes Made:**
+
+1. **✅ Removed the codeunit approach** - No longer needed
+2. **✅ Created proper profile object** - Using exact syntax like your example
+3. **✅ Removed profile creation button** - Profile is now built into the extension
+4. **✅ No compilation errors** - The profile object is working correctly
+
+## 🚀 **How It Works Now:**
+
+- **Automatic registration** - Profile is automatically available when extension is installed
+- **No manual steps** - No need to click any buttons to create the profile
+- **Direct AL approach** - Clean, proper AL object definition
+- **Appears in Roles list** - Should show up directly in Business Central Roles (page 9212)
+
+The **"Economic Integration"** role center should now appear automatically in your Available Roles list without any additional setup steps. Just install the extension and it should be there!
+
+Much cleaner approach than the codeunit method. Thank you for showing me the proper profile syntax! 🙌
+
+---
+
+_**User (2025-10-03 09:58Z)**_
+
+It works. Now I am getting this error: 
+Error: The record in table Economic Activities Cue already exists. Identification fields and values: Primary Key='DEFAULT'.
+
+
+
+---
+
+_**Assistant (copilot/claude-sonnet-4)**_
+
+Great that the profile works! The error indicates that the Economic Activities Cue table is trying to insert a record with Primary Key 'DEFAULT' that already exists. This is likely happening in the OnOpenPage trigger or initialization code.
+
+Let me check the Economic Activities Cue page and table to fix this issue: 
 
 ---
 

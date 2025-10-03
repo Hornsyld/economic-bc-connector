@@ -64,7 +64,7 @@ page 51009 "Economic Activities Cue"
 
     trigger OnOpenPage()
     begin
-        if not Rec.Get() then begin
+        if not Rec.Get('DEFAULT') then begin
             Rec.InitRecord();
             Rec.Insert();
         end;
