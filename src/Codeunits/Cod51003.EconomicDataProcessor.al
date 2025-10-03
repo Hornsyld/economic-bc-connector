@@ -13,12 +13,12 @@ codeunit 51003 "Economic Data Processor"
         ProgressDialog: Dialog;
     begin
         ProgressDialog.Open('Fetching customers from e-conomic API...');
-        
+
         RequestType := RequestType::Customer;
         Success := HttpClient.SendGetRequest(HttpClient.GetBaseUrl() + '/customers', ResponseContent, RequestType);
-        
+
         ProgressDialog.Close();
-        
+
         if Success then
             Success := ProcessCustomerJson(ResponseContent);
     end;
@@ -30,12 +30,12 @@ codeunit 51003 "Economic Data Processor"
         ProgressDialog: Dialog;
     begin
         ProgressDialog.Open('Fetching vendors from e-conomic API...');
-        
+
         RequestType := RequestType::Vendor;
         Success := HttpClient.SendGetRequest(HttpClient.GetBaseUrl() + '/suppliers', ResponseContent, RequestType);
-        
+
         ProgressDialog.Close();
-        
+
         if Success then
             Success := ProcessVendorJson(ResponseContent);
     end;
@@ -54,7 +54,7 @@ codeunit 51003 "Economic Data Processor"
         ProgressText: Text;
     begin
         Success := false;
-        
+
         if not JsonObject.ReadFrom(JsonText) then begin
             Logger.LogError(Enum::"Economic Request Type"::Customer, 'Invalid JSON format in customer response', 'ProcessCustomerJson');
             exit(false);
@@ -72,7 +72,7 @@ codeunit 51003 "Economic Data Processor"
 
         JsonArray := JsonToken.AsArray();
         CustomerCount := JsonArray.Count();
-        
+
         if CustomerCount = 0 then begin
             Logger.LogSuccess('ProcessCustomerJson', 'No customers found in response');
             exit(true);
@@ -80,22 +80,22 @@ codeunit 51003 "Economic Data Processor"
 
         // Show progress dialog
         ProgressDialog.Open('Processing customers from e-conomic...\Progress: #1##################\Customer: #2##################');
-        
+
         foreach CustomerToken in JsonArray do begin
             if CustomerToken.IsObject() then begin
                 CustomerObject := CustomerToken.AsObject();
-                
+
                 // Update progress dialog
                 ProcessedCount += 1;
                 ProgressText := StrSubstNo('%1 of %2', ProcessedCount, CustomerCount);
                 ProgressDialog.Update(1, ProgressText);
                 ProgressDialog.Update(2, GetCustomerDisplayName(CustomerObject));
-                
+
                 if not ProcessSingleCustomer(CustomerObject, EconomicCustomerMapping) then
                     ProcessedCount -= 1; // Adjust count if processing failed
             end;
         end;
-        
+
         ProgressDialog.Close();
 
         Logger.LogSuccess('ProcessCustomerJson', StrSubstNo('Successfully fetched %1 customers from e-conomic', CustomerCount));
@@ -116,7 +116,7 @@ codeunit 51003 "Economic Data Processor"
         ProgressText: Text;
     begin
         Success := false;
-        
+
         if not JsonObject.ReadFrom(JsonText) then begin
             Logger.LogError(Enum::"Economic Request Type"::Vendor, 'Invalid JSON format in vendor response', 'ProcessVendorJson');
             exit(false);
@@ -134,7 +134,7 @@ codeunit 51003 "Economic Data Processor"
 
         JsonArray := JsonToken.AsArray();
         VendorCount := JsonArray.Count();
-        
+
         if VendorCount = 0 then begin
             Logger.LogSuccess('ProcessVendorJson', 'No vendors found in response');
             exit(true);
@@ -142,22 +142,22 @@ codeunit 51003 "Economic Data Processor"
 
         // Show progress dialog
         ProgressDialog.Open('Processing vendors from e-conomic...\Progress: #1##################\Vendor: #2##################');
-        
+
         foreach VendorToken in JsonArray do begin
             if VendorToken.IsObject() then begin
                 VendorObject := VendorToken.AsObject();
-                
+
                 // Update progress dialog
                 ProcessedCount += 1;
                 ProgressText := StrSubstNo('%1 of %2', ProcessedCount, VendorCount);
                 ProgressDialog.Update(1, ProgressText);
                 ProgressDialog.Update(2, GetVendorDisplayName(VendorObject));
-                
+
                 if not ProcessSingleVendor(VendorObject, EconomicVendorMapping) then
                     ProcessedCount -= 1; // Adjust count if processing failed
             end;
         end;
-        
+
         ProgressDialog.Close();
 
         Logger.LogSuccess('ProcessVendorJson', StrSubstNo('Successfully fetched %1 vendors from e-conomic', VendorCount));
@@ -170,7 +170,7 @@ codeunit 51003 "Economic Data Processor"
         CustomerNo: Code[20];
     begin
         Success := false;
-        
+
         if CustomerMapping."Economic Customer Id" = 0 then begin
             Logger.LogError(Enum::"Economic Request Type"::Customer, 'Economic Customer Id is required', 'CreateCustomerFromMapping');
             exit(false);
@@ -222,26 +222,26 @@ codeunit 51003 "Economic Data Processor"
         CurrentCount: Integer;
     begin
         ProcessedCount := 0;
-        
+
         if not CustomerMappings.FindSet() then
             exit(0);
 
         TotalCount := CustomerMappings.Count();
         Window.Open('Creating customers...\Progress: #1########## of #2##########');
-        
+
         repeat
             CurrentCount += 1;
             Window.Update(1, CurrentCount);
             Window.Update(2, TotalCount);
-            
+
             if CustomerMappings."Sync Status" <> CustomerMappings."Sync Status"::Synced then begin
                 if CreateCustomerFromMapping(CustomerMappings) then
                     ProcessedCount += 1;
             end else
                 ProcessedCount += 1; // Already synced
-                
+
         until CustomerMappings.Next() = 0;
-        
+
         Window.Close();
         Logger.LogSuccess('CreateBulkCustomersFromMappings', StrSubstNo('Processed %1 of %2 customer mappings', ProcessedCount, TotalCount));
     end;
@@ -327,7 +327,7 @@ codeunit 51003 "Economic Data Processor"
 
         // VAT and business information
         CustomerMapping."Economic VAT Number" := CopyStr(GetJsonValueAsText(CustomerObject, 'vatNumber'), 1, MaxStrLen(CustomerMapping."Economic VAT Number"));
-        
+
         // Additional fields that may be available
         CustomerMapping."Economic Currency Code" := CopyStr(GetJsonValueAsText(CustomerObject, 'currency'), 1, MaxStrLen(CustomerMapping."Economic Currency Code"));
         CustomerMapping."Economic Credit Limit" := GetJsonValueAsDecimal(CustomerObject, 'creditLimit');
@@ -379,7 +379,7 @@ codeunit 51003 "Economic Data Processor"
     begin
         CustomerName := GetJsonValueAsText(CustomerObject, 'name');
         CustomerNumber := GetJsonValueAsText(CustomerObject, 'customerNumber');
-        
+
         if CustomerName <> '' then
             DisplayName := StrSubstNo('%1 (%2)', CustomerName, CustomerNumber)
         else
@@ -393,7 +393,7 @@ codeunit 51003 "Economic Data Processor"
     begin
         VendorName := GetJsonValueAsText(VendorObject, 'name');
         SupplierNumber := GetJsonValueAsText(VendorObject, 'supplierNumber');
-        
+
         if VendorName <> '' then
             DisplayName := StrSubstNo('%1 (%2)', VendorName, SupplierNumber)
         else

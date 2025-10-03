@@ -14,7 +14,7 @@ codeunit 51001 "Economic HTTP Client"
         ErrorText: Text;
     begin
         Success := false;
-        
+
         if not EconomicSetup.Get() then begin
             Logger.LogSetupError('InitializeClient', 'Economic Setup record does not exist');
             exit(false);
@@ -25,11 +25,11 @@ codeunit 51001 "Economic HTTP Client"
 
         Clear(Client);
         Client.Clear();
-        
+
         // Set default headers
         Client.DefaultRequestHeaders().Clear();
         Client.DefaultRequestHeaders().Add('Accept', 'application/json');
-        
+
         // Add authentication headers for e-conomic API
         Client.DefaultRequestHeaders().Add('X-AppSecretToken', EconomicSetup."API Secret Token");
         Client.DefaultRequestHeaders().Add('X-AgreementGrantToken', EconomicSetup."Agreement Grant Token");
@@ -46,7 +46,7 @@ codeunit 51001 "Economic HTTP Client"
         ErrorText: Text;
     begin
         Success := false;
-        
+
         if not IsInitialized then
             if not InitializeClient() then
                 exit(false);
@@ -59,7 +59,7 @@ codeunit 51001 "Economic HTTP Client"
         end;
 
         Logger.LogAPIResponse(Response, RequestType, ErrorText);
-        
+
         if not Response.IsSuccessStatusCode() then begin
             Logger.LogError(RequestType, ErrorText, 'SendGetRequest');
             exit(false);
@@ -81,7 +81,7 @@ codeunit 51001 "Economic HTTP Client"
         ErrorText: Text;
     begin
         Success := false;
-        
+
         if not IsInitialized then
             if not InitializeClient() then
                 exit(false);
@@ -99,7 +99,7 @@ codeunit 51001 "Economic HTTP Client"
         end;
 
         Logger.LogAPIResponse(Response, RequestType, ErrorText);
-        
+
         if not Response.IsSuccessStatusCode() then begin
             Logger.LogError(RequestType, ErrorText, 'SendPostRequest');
             exit(false);
@@ -121,7 +121,7 @@ codeunit 51001 "Economic HTTP Client"
         ErrorText: Text;
     begin
         Success := false;
-        
+
         if not IsInitialized then
             if not InitializeClient() then
                 exit(false);
@@ -139,7 +139,7 @@ codeunit 51001 "Economic HTTP Client"
         end;
 
         Logger.LogAPIResponse(Response, RequestType, ErrorText);
-        
+
         if not Response.IsSuccessStatusCode() then begin
             Logger.LogError(RequestType, ErrorText, 'SendPutRequest');
             exit(false);
@@ -159,7 +159,7 @@ codeunit 51001 "Economic HTTP Client"
         ErrorText: Text;
     begin
         Success := false;
-        
+
         if not IsInitialized then
             if not InitializeClient() then
                 exit(false);
@@ -172,7 +172,7 @@ codeunit 51001 "Economic HTTP Client"
         end;
 
         Logger.LogAPIResponse(Response, RequestType, ErrorText);
-        
+
         if not Response.IsSuccessStatusCode() then begin
             Logger.LogError(RequestType, ErrorText, 'SendDeleteRequest');
             exit(false);
@@ -206,12 +206,12 @@ codeunit 51001 "Economic HTTP Client"
     local procedure ValidateSetup(var EconomicSetup: Record "Economic Setup") Success: Boolean
     begin
         Success := true;
-        
+
         if EconomicSetup."API Secret Token" = '' then begin
             Logger.LogSetupError('ValidateSetup', 'API Secret Token is not configured');
             Success := false;
         end;
-        
+
         if EconomicSetup."Agreement Grant Token" = '' then begin
             Logger.LogSetupError('ValidateSetup', 'Agreement Grant Token is not configured');
             Success := false;

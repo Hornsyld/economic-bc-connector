@@ -38,12 +38,12 @@ codeunit 51002 "Economic Integration Logger"
         IntegrationLog.Operation := CopyStr(GetResponseReasonPhrase(Response), 1, MaxStrLen(IntegrationLog.Operation));
         IntegrationLog."Description" := CopyStr(StrSubstNo('API Response: %1 %2', Response.HttpStatusCode(), GetResponseReasonPhrase(Response)), 1, MaxStrLen(IntegrationLog."Description"));
         IntegrationLog."Status Code" := Response.HttpStatusCode();
-        
+
         if not Success then begin
             ErrorText := GetErrorText(Response);
             IntegrationLog."Error Message" := CopyStr(ErrorText, 1, MaxStrLen(IntegrationLog."Error Message"));
         end;
-        
+
         IntegrationLog."User ID" := CopyStr(UserId, 1, MaxStrLen(IntegrationLog."User ID"));
         IntegrationLog.Insert(true);
     end;
@@ -120,7 +120,7 @@ codeunit 51002 "Economic Integration Logger"
     begin
         Success := Response.IsSuccessStatusCode();
         StatusCodeText := Format(Response.HttpStatusCode());
-        
+
         if Success then
             EventType := IntegrationLog."Event Type"::Information
         else
@@ -133,10 +133,10 @@ codeunit 51002 "Economic Integration Logger"
         IntegrationLog."Description" := CopyStr(StrSubstNo('%1 - Status: %2', Operation, StatusCodeText), 1, MaxStrLen(IntegrationLog."Description"));
         IntegrationLog."Status Code" := Response.HttpStatusCode();
         IntegrationLog."Request URL" := CopyStr(GetResponseUrl(Response), 1, MaxStrLen(IntegrationLog."Request URL"));
-        
+
         if not Success then
             IntegrationLog."Error Message" := CopyStr(ResponseContent, 1, MaxStrLen(IntegrationLog."Error Message"));
-            
+
         IntegrationLog."Log Timestamp" := CurrentDateTime;
         IntegrationLog."User ID" := CopyStr(UserId, 1, MaxStrLen(IntegrationLog."User ID"));
         IntegrationLog.Insert(true);

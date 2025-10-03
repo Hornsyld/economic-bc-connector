@@ -118,7 +118,7 @@ page 51011 "Economic Vendor Mapping"
     begin
         // Find all records that haven't been synced yet
         EconomicVendorMapping.SetFilter("Sync Status", '<>%1', EconomicVendorMapping."Sync Status"::Synced);
-        
+
         if not EconomicVendorMapping.FindSet() then begin
             Message('No unsynced vendors found.');
             exit;
@@ -131,7 +131,7 @@ page 51011 "Economic Vendor Mapping"
             ProcessedRecords += 1;
             Dialog.Update(1, ProcessedRecords);
             Dialog.Update(2, TotalRecords);
-            
+
             if CreateSingleVendor(EconomicVendorMapping) then
                 Counter += 1
             else
@@ -157,7 +157,7 @@ page 51011 "Economic Vendor Mapping"
         end else begin
             NewVendorNo := EconomicVendorMapping."Vendor No.";
         end;
-        
+
         // Check if vendor already exists
         if Vendor.Get(NewVendorNo) then begin
             // Update sync status to indicate vendor already exists
@@ -171,14 +171,14 @@ page 51011 "Economic Vendor Mapping"
         Vendor.Init();
         Vendor."No." := NewVendorNo;
         Vendor.Name := CopyStr(StrSubstNo('e-conomic Vendor %1', EconomicVendorMapping."Economic Vendor Number"), 1, MaxStrLen(Vendor.Name));
-        
+
         Vendor.Insert(true);
-        
+
         // Update sync status to mark as successfully created
         EconomicVendorMapping."Sync Status" := EconomicVendorMapping."Sync Status"::Synced;
         EconomicVendorMapping."Last Sync DateTime" := CurrentDateTime;
         EconomicVendorMapping.Modify(true);
-        
+
         exit(true);
     end;
 }

@@ -187,7 +187,7 @@ table 51004 "Economic Customer Mapping"
             Counter += 1;
             SuggestedNo := CopyStr(StrSubstNo('ECON%1-%2', "Economic Customer Id", Counter), 1, 20);
         end;
-        
+
         exit(SuggestedNo);
     end;
 }

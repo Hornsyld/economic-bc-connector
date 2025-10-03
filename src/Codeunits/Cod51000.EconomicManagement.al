@@ -27,7 +27,7 @@ codeunit 51000 "Economic Management"
 
         RequestType := RequestType::Account;
         Success := HttpClient.SendGetRequest(HttpClient.GetBaseUrl() + '/accounts', ResponseContent, RequestType);
-        
+
         if Success then begin
             ProcessAccountsJson(ResponseContent);
             Message(AccountsFetchedMsg, 'multiple'); // Would need count from processor
@@ -95,8 +95,8 @@ codeunit 51000 "Economic Management"
 
         // Validate journal setup
         if not GenJnlTemplate.Get(Setup."Default Journal Template") then begin
-            Logger.LogError(Enum::"Economic Request Type"::Journal, 
-                StrSubstNo('Journal template %1 does not exist', Setup."Default Journal Template"), 
+            Logger.LogError(Enum::"Economic Request Type"::Journal,
+                StrSubstNo('Journal template %1 does not exist', Setup."Default Journal Template"),
                 'CreateGeneralJournalEntries');
             Error('The configured journal template %1 does not exist.', Setup."Default Journal Template");
         end;
@@ -118,7 +118,7 @@ codeunit 51000 "Economic Management"
 
         // Create journal entries from Economic data
         Success := CreateJournalEntriesFromEconomic(Setup."Default Journal Template", Setup."Default Journal Batch", NextLineNo);
-        
+
         if Success then begin
             Logger.LogSuccess('CreateGeneralJournalEntries', JournalCreatedMsg);
             Message(JournalCreatedMsg);
@@ -136,7 +136,7 @@ codeunit 51000 "Economic Management"
         SalesSetup.Get();
         if SalesSetup."Customer Nos." <> '' then
             exit(NoSeries.GetNextNo(SalesSetup."Customer Nos.", Today()));
-        
+
         // Fallback: Generate a simple number
         if Customer.FindLast() then begin
             TempText := Customer."No.";
@@ -186,7 +186,7 @@ codeunit 51000 "Economic Management"
         end;
 
         JsonArray := JsonToken.AsArray();
-        
+
         if JsonArray.Count() = 0 then begin
             Logger.LogSuccess('ProcessAccountsJson', 'No accounts found in response');
             Message(NoAccountsFoundErr);
@@ -244,7 +244,7 @@ codeunit 51000 "Economic Management"
     begin
         Success := false;
         RequestType := RequestType::Journal;
-        
+
         // Get journal entries from e-conomic
         if not HttpClient.SendGetRequest(HttpClient.GetBaseUrl() + '/entries', ResponseContent, RequestType) then
             exit(false);

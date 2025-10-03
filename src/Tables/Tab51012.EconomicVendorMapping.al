@@ -89,7 +89,7 @@ table 51012 "Economic Vendor Mapping"
             Counter += 1;
             SuggestedNo := CopyStr(StrSubstNo('VEND%1-%2', "Economic Vendor Id", Counter), 1, 20);
         end;
-        
+
         exit(SuggestedNo);
     end;
 }

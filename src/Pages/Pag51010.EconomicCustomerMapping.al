@@ -25,7 +25,7 @@ page 51010 "Economic Customer Mapping"
                     ToolTip = 'Specifies the customer name from e-conomic.';
                     StyleExpr = StatusStyleExpr;
                 }
-                
+
                 // e-conomic Address Information
                 field("Economic Address"; Rec."Economic Address")
                 {
@@ -47,7 +47,7 @@ page 51010 "Economic Customer Mapping"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the country from e-conomic.';
                 }
-                
+
                 // e-conomic Contact Information
                 field("Economic Email"; Rec."Economic Email")
                 {
@@ -69,7 +69,7 @@ page 51010 "Economic Customer Mapping"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the telephone/fax number from e-conomic.';
                 }
-                
+
                 // e-conomic Business Information
                 field("Economic VAT Number"; Rec."Economic VAT Number")
                 {
@@ -116,7 +116,7 @@ page 51010 "Economic Customer Mapping"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if the customer is barred in e-conomic.';
                 }
-                
+
                 // Business Central Mapping
                 field("Customer No."; Rec."Customer No.")
                 {
@@ -128,7 +128,7 @@ page 51010 "Economic Customer Mapping"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the mapped Business Central customer.';
                 }
-                
+
                 // Status Information
                 field("Sync Status"; Rec."Sync Status")
                 {
@@ -233,7 +233,7 @@ page 51010 "Economic Customer Mapping"
     begin
         // Find all records that haven't been synced yet
         EconomicCustomerMapping.SetFilter("Sync Status", '<>%1', EconomicCustomerMapping."Sync Status"::Synced);
-        
+
         if not EconomicCustomerMapping.FindSet() then begin
             Message('No unsynced customers found.');
             exit;
@@ -246,7 +246,7 @@ page 51010 "Economic Customer Mapping"
             ProcessedRecords += 1;
             Dialog.Update(1, ProcessedRecords);
             Dialog.Update(2, TotalRecords);
-            
+
             if CreateSingleCustomer(EconomicCustomerMapping) then
                 Counter += 1
             else
@@ -273,7 +273,7 @@ page 51010 "Economic Customer Mapping"
         end else begin
             NewCustomerNo := EconomicCustomerMapping."Customer No.";
         end;
-        
+
         // Check if customer already exists
         if Customer.Get(NewCustomerNo) then begin
             // Update sync status to indicate customer already exists
@@ -293,18 +293,18 @@ page 51010 "Economic Customer Mapping"
         Customer."E-Mail" := EconomicCustomerMapping."Economic Email";
         Customer."Phone No." := EconomicCustomerMapping."Economic Phone";
         Customer."VAT Registration No." := EconomicCustomerMapping."Economic VAT Number";
-        
+
         // Map country if available
         if CountryMapping.Get(EconomicCustomerMapping."Economic Country") then
             Customer."Country/Region Code" := CountryMapping."Country/Region Code";
 
         Customer.Insert(true);
-        
+
         // Update sync status to mark as successfully created
         EconomicCustomerMapping."Sync Status" := EconomicCustomerMapping."Sync Status"::Synced;
         EconomicCustomerMapping."Last Sync DateTime" := CurrentDateTime;
         EconomicCustomerMapping.Modify(true);
-        
+
         exit(true);
     end;
 }
