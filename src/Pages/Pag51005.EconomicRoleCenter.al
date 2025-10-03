@@ -3,7 +3,8 @@ page 51005 "Economic Role Center"
     PageType = RoleCenter;
     ApplicationArea = All;
     UsageCategory = Administration;
-    Caption = 'Economic Integration';
+    Caption = 'Economic Integration Role Center';
+    AccessByPermission = tabledata "Economic Setup" = R;
 
     layout
     {
